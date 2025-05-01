@@ -1,6 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { IsEmail, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { Post } from '../../post/entities/post.entity';
 
 @Entity()
 export class User {
@@ -22,4 +23,8 @@ export class User {
     @Column()
     @MinLength(6)
     password: string;
+
+    @ApiProperty()
+    @OneToMany(type => Post, post => post.user)
+    posts: Post[];
 }

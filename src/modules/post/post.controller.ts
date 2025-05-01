@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Req } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -22,13 +22,14 @@ export class PostController {
     }),
   }))
   async create(
+    @Req() req: Request,
     @Body() createPostDto: CreatePostDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    console.log(file);
     const imageFile = file.filename;
+    const userId = req.headers['authorization']
     try{
-      return await this.postService.create(createPostDto, imageFile);
+      return await this.postService.create(createPostDto, imageFile, userId);
     }catch (error) {
       if (error.message === 'Invalid credentials!') {
         throw new BadRequestException({ description: 'Invalid credentials!' });
