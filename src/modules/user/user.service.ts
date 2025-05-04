@@ -15,8 +15,8 @@ export class UserService {
     return 'This action adds a new user';
   }
 
-  findAll() {
-    return this.userRepository.findAndCount();
+  async findAll() {
+    return await this.userRepository.findAndCount();
   }
 
   findOne(id: string) {
@@ -25,11 +25,19 @@ export class UserService {
     });
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    return `This action updates a #${id} user`;
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOneBy({id})
+
+    if(!user) {
+      throw new Error('User not found!');
+    }
+
+    Object.assign(user,updateUserDto);
+
+    return this.userRepository.save(user) 
   }
 
-  remove(id: number) {
+  remove(id: string) {
     return `This action removes a #${id} user`;
   }
 }

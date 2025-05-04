@@ -20,9 +20,14 @@ export class User {
     email: string
 
     @ApiProperty()
-    @Column()
+    @Column({ select: false })
     @MinLength(6)
     password: string;
+
+    @ApiProperty()
+    @Column({ nullable: true })
+    @IsString()
+    image: string;
 
     @ApiProperty()
     @OneToMany(type => Post, post => post.user)

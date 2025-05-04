@@ -45,6 +45,37 @@ export class PostService {
     return postsWithFullImageUrl;
   }
 
+  async findAllByUser (userId: string) {
+    const existedUser = await this.userRepository.findOne({
+      where: {id: userId}
+    });
+
+    if (!existedUser) {
+      throw new Error('User not found!')
+    }
+
+    const posts = await this.postRepository.find({
+      where: {user: existedUser},
+      relations: ['user'],
+      select: {
+        user: {id: true, fullName: true, email: true}
+      }
+    })
+
+    if (!posts) {
+      throw new Error('Post not found!')
+    }
+    
+    const HOST_URL = process.env.BASE_IMG_URL;
+
+    const postsWithFullImageUrl = posts.map(post => ({
+      ...post,
+      image: post.image ? `${HOST_URL}/${post.image}` : null,
+    }));
+  
+    return postsWithFullImageUrl;
+  }
+
   findOne(id: number) {
     return `This action returns a #${id} post`;
   }

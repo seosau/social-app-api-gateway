@@ -1,6 +1,6 @@
 import { Injectable } from '@nestjs/common';
-import { CreateUserDto } from './dto/create-user.dto';
-import { UpdateUserDto } from './dto/update-user.dto';
+import { CreateUserDto } from '../user/dto/create-user.dto';
+import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -25,12 +25,14 @@ export class AuthService {
 
   async login(loginUserDto: LoginUserDto) {
     const existedUser = await this.userRepository.findOne({
-      where: {email: loginUserDto.email, password: loginUserDto.password}
+      where: {email: loginUserDto.email, password: loginUserDto.password},
     });
 
     if(!existedUser) {
       throw new Error('Invalid credentials!')
     }
-    return existedUser;
+    const HOST_URL = process.env.BASE_IMG_URL;
+    const existedUserWithImg = {...existedUser, image: existedUser.image? `${HOST_URL}/${existedUser.image}` : null }
+    return existedUserWithImg;
   }
 }

@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Req, Query } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
@@ -37,6 +37,11 @@ export class PostController {
         throw new error;
       }
     }
+  }
+
+  @Get('user')
+  async findAllByUser(@Query('userId') userId: string) {
+    return this.postService.findAllByUser(userId);
   }
 
   @Get()
