@@ -1,35 +1,27 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
-import { InjectRepository } from '@nestjs/typeorm';
-import { User } from './entities/user.entity';
-import { Repository } from 'typeorm';
 import { addBaseURL } from '../../utils';
+import { UserRepository } from './user.repository';
+import { addBaseURLInUser } from '../../utils/addBaseURLInUser';
 
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>
+    private userRepository: UserRepository
   ) {}
 
-  async findAll() {
-    return await this.userRepository.findAndCount();
-  }
-
   async findOne(id: string) {
-    const user = await this.userRepository.findOne({
-      where: {id: id}
-    });
+    const user = await this.userRepository.findById(id);
 
     if (!user) {
       throw new NotFoundException('User not found!');
     }
 
-    return {...user, image: addBaseURL(user.image)};
+    return addBaseURLInUser(user);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOneBy({id})
+    const user = await this.userRepository.findById(id)
 
     if(!user) {
       throw new NotFoundException('User not found!');
@@ -39,6 +31,6 @@ export class UserService {
 
     const savedUser = await this.userRepository.save(user);
 
-    return {...savedUser, image: addBaseURL(savedUser.image)};
+    return addBaseURLInUser(savedUser);
   }
 }

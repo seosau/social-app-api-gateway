@@ -9,11 +9,6 @@ import { extname } from 'path';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  // @Get()
-  // findAll() {
-  //   return this.userService.findAll();
-  // }
-
   @Get(':id')
   async findOne(@Param('id') userId: string) {
     return this.userService.findOne(userId);

@@ -1,21 +1,16 @@
 import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { User } from '../user/entities/user.entity';
-import { Repository } from 'typeorm';
-import { InjectRepository } from '@nestjs/typeorm';
 import { LoginUserDto } from './dto/login-user.dto';
 import { addBaseURL } from '../../utils/addBaseURL';
+import { UserRepository } from '../user/user.repository';
  
 @Injectable()
 export class AuthService {
   constructor(
-    @InjectRepository(User)
-    private userRepository: Repository<User>,
+    private userRepository: UserRepository,
   ){}
   async register(createUserDto: CreateUserDto) {
-    const existedUser = await this.userRepository.findOne({
-      where: { email: createUserDto.email},
-    })
+    const existedUser = await this.userRepository.findByEmail(createUserDto.email);
     if (existedUser) {
       throw new ConflictException('User already exists');
     }
@@ -24,9 +19,7 @@ export class AuthService {
   }
 
   async login(loginUserDto: LoginUserDto) {
-    const existedUser = await this.userRepository.findOne({
-      where: {email: loginUserDto.email, password: loginUserDto.password},
-    });
+    const existedUser = await this.userRepository.findByEmailAndPassword(loginUserDto.email, loginUserDto.password);
 
     if(!existedUser) {
       throw new BadRequestException('Invalid credentials!')
