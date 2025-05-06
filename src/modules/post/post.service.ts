@@ -3,6 +3,7 @@ import { CreatePostDto } from './dto/create-post.dto';
 import { PostRepository } from './post.repository';
 import { UserRepository } from '../user/user.repository';
 import { addBaseURLInPosts } from '../../utils/addBaseURLInPosts';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Injectable()
 export class PostService {
@@ -80,6 +81,33 @@ export class PostService {
     this.postRepository.softRemove(post);
     return {message: 'Post deleted'};
   }
-  
 
+  async findByKeyword(keyword: string) {
+    const posts = await this.postRepository.findByKeyword(keyword);
+    if(!posts) {
+      throw new NotFoundException('Post not found!');
+    }
+    return addBaseURLInPosts(posts);
+  }
+
+  async findByKeywordAndUser(keyword: string, userId: string) {
+    const posts = await this.postRepository.findByKeywordAndUser(keyword, userId);
+    if(!posts) {
+      throw new NotFoundException('Post not found!');
+    }
+    return addBaseURLInPosts(posts);
+  }
+  
+  async update (userId: string, updatePostDto: UpdatePostDto, image: string) {
+    const user = await this.userRepository.findById(userId);
+    const post = await this.postRepository.findOneWithUserRelations(updatePostDto.id);
+    if (!user || !post) {
+      throw new NotFoundException('User or post not found!');
+    } else if (user.id !== post.user.id) {
+      throw new ForbiddenException('You are not allow to update this post')
+    }
+    Object.assign(post,{...updatePostDto, image: image});
+
+    return this.postRepository.save(post);
+  }
 }

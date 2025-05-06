@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Req, Query, Patch, UploadedFiles } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
+import { UpdatePostDto } from './dto/update-post.dto';
 
 @Controller('post')
 export class PostController {
@@ -38,6 +39,19 @@ export class PostController {
     }
   }
 
+  @Get('search/:keyword/:userId')
+  async findByKeywordAndUser(
+    @Param('keyword') keyword: string,
+    @Param('userId') userId: string
+  ) {
+    return this.postService.findByKeywordAndUser(keyword, userId);
+  }
+
+  @Get('search/:keyword')
+  async findByKeyword(@Param('keyword') keyword: string) {
+    return this.postService.findByKeyword(keyword);
+  }
+
   @Get('user/:id')
   async findAllByUser(@Param('id') userId: string) {
     return this.postService.findAllByUser(userId);
@@ -58,5 +72,26 @@ export class PostController {
   async delete(@Param('id') postId: string, @Req() req: Request) {
     const userId = req.headers['authorization']
     return this.postService.delete(userId, postId);
+  }
+
+  @Patch()
+  @UseInterceptors(FileInterceptor('image', {
+    storage: diskStorage({
+      destination: './upload',
+      filename: (req, file, callback) => {
+        const uniqueSuffix = Date.now()+ '-' + Math.round(Math.random()*1e9);
+        const ext = extname(file.originalname);
+        callback(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+      },
+    }),
+  }))
+  async update(
+    @Req() req: Request,
+    @Body() updatePostDto: UpdatePostDto,
+    @UploadedFile() file: Express.Multer.File
+  ) {
+    const userId = req.headers['authorization'];
+    const image = file.filename;
+    return this.postService.update(userId, updatePostDto, image);
   }
 }

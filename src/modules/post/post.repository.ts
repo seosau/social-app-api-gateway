@@ -1,4 +1,4 @@
-import { DataSource, Repository } from "typeorm";
+import { DataSource, ILike, Repository } from "typeorm";
 import { Post } from "./entities/post.entity";
 import { Injectable } from "@nestjs/common";
 import { CreatePostDto } from "./dto/create-post.dto";
@@ -39,5 +39,22 @@ export class PostRepository extends Repository<Post> {
             relations: ['user'],
             where: {id: id}
           })
+    }
+
+    async findByKeyword(keyword: string){
+        return this.find({
+            where: {content: ILike(`%${keyword}%`)},
+            relations: ['user', 'likedBy']
+        })
+    }
+
+    async findByKeywordAndUser(keyword: string, userId: string) {
+        return this.find({
+            where: { 
+                content: ILike(`%${keyword}%`),
+                user: {id: userId}
+            },
+            relations: ['user', 'likedBy']
+        })
     }
 }
