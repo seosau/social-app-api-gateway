@@ -1,5 +1,5 @@
 import { User } from '../../user/entities/user.entity';
-import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, CreateDateColumn, UpdateDateColumn, ManyToOne, ManyToMany, JoinTable, DeleteDateColumn } from 'typeorm';
 
 @Entity()
 export class Post {
@@ -15,12 +15,19 @@ export class Post {
   @Column({ nullable: true })
   image: string;
 
-  @ManyToOne(type => User, user => user.posts)
+  @ManyToOne(() => User, user => user.posts)
   user: User;
+
+  @ManyToMany(() => User, (user) => user.likedPosts)
+  @JoinTable() 
+  likedBy: User[];
 
   @CreateDateColumn()
   createdAt: Date;
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @DeleteDateColumn()
+  deletedAt: Date;
 }

@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany, ManyToMany, CreateDateColumn, UpdateDateColumn, DeleteDateColumn } from 'typeorm';
 import { IsEmail, IsString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { Post } from '../../post/entities/post.entity';
@@ -30,6 +30,18 @@ export class User {
     image: string;
 
     @ApiProperty()
-    @OneToMany(type => Post, post => post.user)
+    @OneToMany(() => Post, post => post.user)
     posts: Post[];
+
+    @ManyToMany(() => Post, (post) => post.likedBy)
+    likedPosts: Post[];
+    
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+
+    @DeleteDateColumn()
+    deletedAt: Date;
 }

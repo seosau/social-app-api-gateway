@@ -1,6 +1,5 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Req, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Req, UseInterceptors, UploadedFile } from '@nestjs/common';
 import { UserService } from './user.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
@@ -10,21 +9,14 @@ import { extname } from 'path';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post()
-  create(@Body() createUserDto: CreateUserDto) {
-    return this.userService.create(createUserDto);
-  }
-
   // @Get()
   // findAll() {
   //   return this.userService.findAll();
   // }
 
-  @Get()
-  findOne(@Req() req: Request) {
-    const userId = req.headers['authorization'];
-    const id = userId.split(' ')[1];
-    return this.userService.findOne(id);
+  @Get(':id')
+  async findOne(@Param('id') userId: string) {
+    return this.userService.findOne(userId);
   }
 
   @Patch()
@@ -46,10 +38,5 @@ export class UserController {
     const userId = req.headers['authorization']
     updateUserDto.image = file.filename
     return this.userService.update(userId, updateUserDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.userService.remove(id);
   }
 }

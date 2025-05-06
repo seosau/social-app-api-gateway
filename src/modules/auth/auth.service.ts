@@ -1,10 +1,10 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
-import { UpdateUserDto } from '../user/dto/update-user.dto';
 import { User } from '../user/entities/user.entity';
 import { Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { LoginUserDto } from './dto/login-user.dto';
+import { addBaseURL } from '../../utils/addBaseURL';
  
 @Injectable()
 export class AuthService {
@@ -17,7 +17,7 @@ export class AuthService {
       where: { email: createUserDto.email},
     })
     if (existedUser) {
-      throw new Error('User already exists');
+      throw new ConflictException('User already exists');
     }
     const user = this.userRepository.create(createUserDto);
     return await this.userRepository.save(user);
@@ -29,10 +29,9 @@ export class AuthService {
     });
 
     if(!existedUser) {
-      throw new Error('Invalid credentials!')
+      throw new BadRequestException('Invalid credentials!')
     }
-    const HOST_URL = process.env.BASE_IMG_URL;
-    const existedUserWithImg = {...existedUser, image: existedUser.image? `${HOST_URL}/${existedUser.image}` : null }
+    const existedUserWithImg = {...existedUser, image: addBaseURL(existedUser.image) }
     return existedUserWithImg;
   }
 }

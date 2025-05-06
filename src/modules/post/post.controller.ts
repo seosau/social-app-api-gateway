@@ -1,7 +1,6 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Req, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Req } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
-import { UpdatePostDto } from './dto/update-post.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
@@ -39,8 +38,8 @@ export class PostController {
     }
   }
 
-  @Get('user')
-  async findAllByUser(@Query('userId') userId: string) {
+  @Get('user/:id')
+  async findAllByUser(@Param('id') userId: string) {
     return this.postService.findAllByUser(userId);
   }
 
@@ -49,18 +48,15 @@ export class PostController {
     return this.postService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.postService.findOne(+id);
+  @Post(':id/toggleLike')
+  async likePost(@Param('id') postId: string, @Req() req: Request) {
+    const userId = req.headers['authorization']
+    return this.postService.toggleLike(userId, postId);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePostDto: UpdatePostDto) {
-    return this.postService.update(+id, updatePostDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.postService.remove(+id);
+  @Delete('/:id')
+  async delete(@Param('id') postId: string, @Req() req: Request) {
+    const userId = req.headers['authorization']
+    return this.postService.delete(userId, postId);
   }
 }
