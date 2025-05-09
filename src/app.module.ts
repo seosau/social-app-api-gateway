@@ -11,6 +11,7 @@ import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module
 import { join } from 'path';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
+import { MetricsModule } from './metrics/metrics.module';
  
 @Module({
   imports: [
@@ -21,7 +22,7 @@ import { redisStore } from 'cache-manager-redis-store';
     ServeStaticModule.forRoot({
         rootPath: join(__dirname, '..', 'upload'),
     }),
-    // MetricsModule,
+    MetricsModule,
     CacheModule.registerAsync({
       isGlobal: true,
       inject: [ConfigService],

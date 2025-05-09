@@ -1,4 +1,4 @@
-import { DataSource, ILike, Repository } from "typeorm";
+import { DataSource, ILike, In, Repository } from "typeorm";
 import { Post } from "./entities/post.entity";
 import { Injectable } from "@nestjs/common";
 import { CreatePostDto } from "./dto/create-post.dto";
@@ -12,12 +12,15 @@ export class PostRepository extends Repository<Post> {
 
     async createPost (createPostDto: CreatePostDto, image: string, user: User) {
         const post = this.create({...createPostDto, image, user});
-        return this.save(post);
+        return await this.save(post);
     }
 
     async findAllWithRelations() {
         return this.find({
-            relations: ['user', 'likedBy']
+            relations: ['user', 'likedBy'],
+            order: {
+                createdAt: 'DESC'
+            }
         })
     }
 
@@ -25,18 +28,34 @@ export class PostRepository extends Repository<Post> {
         return this.find({
             where: {user: {id: userId}},
             relations: ['user','likedBy'],
+            order: {
+                createdAt: 'DESC'
+            }
           })
     }
 
     async findById(id: string) {
         return this.findOne({
-            where: {id: id}
+            where: {id: id},
+            relations: ['user','likedBy'],
         })
     }
 
-    async findOneWithUserRelations(id: string) {
+    async findByIds(ids: (string | undefined)[]) {
+        return this.find({
+            where: {
+                id: In(ids)
+            },
+            relations: ['user','likedBy'],
+            order: {
+                createdAt: 'DESC'
+            }
+        })
+    }
+
+    async findOneWithAllRelations(id: string) {
         return this.findOne({
-            relations: ['user'],
+            relations: ['user', 'likedBy'],
             where: {id: id}
           })
     }
@@ -44,7 +63,10 @@ export class PostRepository extends Repository<Post> {
     async findByKeyword(keyword: string){
         return this.find({
             where: {content: ILike(`%${keyword}%`)},
-            relations: ['user', 'likedBy']
+            relations: ['user', 'likedBy'],
+            order: {
+                createdAt: 'DESC'
+            }
         })
     }
 
@@ -54,7 +76,10 @@ export class PostRepository extends Repository<Post> {
                 content: ILike(`%${keyword}%`),
                 user: {id: userId}
             },
-            relations: ['user', 'likedBy']
+            relations: ['user', 'likedBy'],
+            order: {
+                createdAt: 'DESC'
+            }
         })
     }
 }

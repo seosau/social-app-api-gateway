@@ -6,6 +6,7 @@ import { User } from './entities/user.entity';
 import { AuthModule } from '../auth/auth.module';
 import { Post } from '../post/entities/post.entity';
 import { UserRepository } from './user.repository';
+import { PostRepository } from '../post/post.repository';
 
 @Module({
   imports: [
@@ -13,6 +14,6 @@ import { UserRepository } from './user.repository';
     AuthModule
   ],
   controllers: [UserController],
-  providers: [UserService, UserRepository],
+  providers: [UserService, UserRepository, PostRepository],
 })
 export class UserModule {}

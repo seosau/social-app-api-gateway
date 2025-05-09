@@ -1,6 +1,8 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
-import { ElasticsearchModule, ElasticsearchService } from '@nestjs/elasticsearch';
+import { ElasticsearchModule } from '@nestjs/elasticsearch';
+
+import { SearchService } from '../services/elasticsearch.service';
 
 @Module({
   imports: [
@@ -8,6 +10,13 @@ import { ElasticsearchModule, ElasticsearchService } from '@nestjs/elasticsearch
       imports: [ConfigModule],
       useFactory: async (config: ConfigService) => ({
         node: config.get<string>("METRICS_HOST"),
+        maxRetries: 5,
+        requestTimeout: 60000,
+        pingTimeout: 30000,
+        auth: {
+          username: 'defaultUsername',
+          password: 'defaultPassword'
+        },
         tls: {
           rejectUnauthorized: false,
         }
@@ -15,7 +24,7 @@ import { ElasticsearchModule, ElasticsearchService } from '@nestjs/elasticsearch
       inject: [ConfigService]
     })
   ],
-  providers: [ElasticsearchService],
-  exports: [ElasticsearchService],
+  providers: [SearchService],
+  exports: [ElasticsearchModule, SearchService],
 })
 export class MetricsModule {}

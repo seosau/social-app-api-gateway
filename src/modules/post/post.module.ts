@@ -6,16 +6,14 @@ import { Post } from './entities/post.entity';
 import { User } from '../user/entities/user.entity';
 import { PostRepository } from './post.repository';
 import { UserRepository } from '../user/user.repository';
-// import { ElasticsearchService } from '@nestjs/elasticsearch';
-// import { CacheModule } from '@nestjs/cache-manager';
+import { MetricsModule } from '../../metrics/metrics.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Post, User]), // cần nếu dùng @InjectRepository
-    // CacheModule.register(),
+    MetricsModule
   ],
   controllers: [PostController],
   providers: [PostService, PostRepository, UserRepository],
-  // providers: [PostService, PostRepository, UserRepository, ElasticsearchService],
 })
 export class PostModule {}

@@ -21,7 +21,7 @@ export class User {
 
     @Column({ nullable: true })
     @IsString()
-    image: string;
+    image: string ;
 
     @OneToMany(() => Post, post => post.user)
     posts: Post[];
