@@ -28,15 +28,7 @@ export class PostController {
   ) {
     const imageFile = file.filename;
     const userId = req.headers['authorization']
-    try{
-      return await this.postService.create(createPostDto, imageFile, userId);
-    }catch (error) {
-      if (error.message === 'Invalid credentials!') {
-        throw new BadRequestException({ description: 'Invalid credentials!' });
-      } else {
-        throw new error;
-      }
-    }
+    return await this.postService.create(createPostDto, imageFile, userId);
   }
 
   @Get('search/:keyword/:userId')

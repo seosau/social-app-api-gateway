@@ -11,22 +11,16 @@ export class SearchService {
 
   // async indexDocument(index: string, document: any) {
   async indexDocument(post: Post) {
-    // console.log('indexdocument========================================')
-    try { 
-      return this.elasticsearchService.index({
-        index: 'posts',
-        id: post.id,
-            document: {
-              access: post.access,
-              content: post.content,
-              userId: post.user.id,
-              createdAt: post.createdAt
-            }
-      });
-    }
-    catch(err) {
-      console.error('Loi khi luu elastic: ', err);
-    }
+    return this.elasticsearchService.index({
+      index: 'posts',
+      id: post.id,
+      document: {
+        access: post.access,
+        content: post.content,
+        userId: post.user.id,
+        createdAt: post.createdAt
+      }
+    });
   }
 
   async search(index: string, query: any) {
@@ -35,6 +29,28 @@ export class SearchService {
       body: {
         query,
       },
+    });
+  }
+
+  async updateDocument(post: Post) {
+    return this.elasticsearchService.update({
+      index: 'posts',
+      id: post.id,
+      body: {
+        doc: {
+          access: post.access,
+          content: post.content,
+          userId: post.user.id,
+          createdAt: post.createdAt
+        }
+      }
+    });
+  }
+
+  async deleteDocument(postId: string){
+    return this.elasticsearchService.delete({
+      index: 'posts',
+      id: postId,
     });
   }
 

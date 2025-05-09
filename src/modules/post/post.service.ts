@@ -20,17 +20,6 @@ export class PostService {
     private readonly searchService: SearchService
   ){}
 
-  // async indexPost(post: Post) {
-  //   return this.searchService.indexDocument('posts',{
-  //     document: {
-  //       access: post.access,
-  //       content: post.content,
-  //       userId: post.user.id,
-  //       createdAt: post.createdAt
-  //     }
-  //   })
-  // }
-
   async indexPost(post: Post) {
     return this.searchService.indexDocument(post)
   }
@@ -39,7 +28,7 @@ export class PostService {
     const {hits} = await this.searchService.search('posts',{
       multi_match: {
         query: keyword,
-        fields: ['access', 'content', 'userId', 'createdAt']
+        fields: ['access', 'content', 'userId']
       },
     });
 
@@ -48,7 +37,31 @@ export class PostService {
       // ...hit._source,
     }));
   }
-
+  async searchPostsWithUser(keyword: string, userId: string) {
+    const result = await this.searchService.search('posts', {
+      bool: {
+        must: [
+          {
+            multi_match: {
+              query: keyword,
+              fields: ['content', 'access'], // các trường bạn muốn tìm kiếm
+            },
+          },
+          {
+            term: {
+              userId: userId,  // điều kiện tìm kiếm theo userId
+            },
+          },
+        ],
+      },
+    });
+  
+    return result.hits.hits.map(hit => ({
+      id: hit._id,
+      // ...hit._source,
+    }));
+  }
+  
   async updateCaches (updateOption: string, userId: string, postWithUrl: Post) {
     const cacheAllPosts = (await this.cacheManager.get(POST_CACHE_KEYS.ALL_POSTS)) as Post[] || [];
     const cachePostsUser = (await this.cacheManager.get(POST_CACHE_KEYS.POSTS_BY_USER(userId))) as Post[] || [];
@@ -92,7 +105,7 @@ export class PostService {
       throw new InternalServerErrorException('Create post failed!');
     }
 
-    // await this.indexPost(post);
+    await this.indexPost(post);
 
     const postWithRelations = await this.postRepository.findById(post.id);
     if(!postWithRelations){
@@ -177,18 +190,18 @@ export class PostService {
       throw new ForbiddenException('You are not allow to delete this post')
     }
     this.postRepository.softRemove(post);
+    await this.searchService.deleteDocument(post.id);
 
     await this.updateCaches(POST_UPDATE_CACHE_OPTIONS.DELETE, userId, addBaseURLInPost(post));
     return {message: 'Post deleted'};
   }
 
   async findByKeyword(keyword: string) {
-    // const eltPosts = await this.searchPosts(keyword);
-    // const ids = eltPosts.map(post => post.id);
-    // if(ids.length === 0) return [];
-
-    // const posts = await this.postRepository.findByIds(ids);
-    const posts = await this.postRepository.findByKeyword(keyword);
+    const eltPosts = await this.searchPosts(keyword);
+    const ids = eltPosts.map(post => post.id);
+    if(ids.length === 0) return [];
+    const posts = await this.postRepository.findByIds(ids);
+    // const posts = await this.postRepository.findByKeyword(keyword);
     if(!posts) {
       throw new NotFoundException('Post not found!');
     }
@@ -196,7 +209,11 @@ export class PostService {
   }
 
   async findByKeywordAndUser(keyword: string, userId: string) {
-    const posts = await this.postRepository.findByKeywordAndUser(keyword, userId);
+    const eltPosts = await this.searchPostsWithUser(keyword, userId);
+    const ids = eltPosts.map(post => post.id);
+    if(ids.length === 0) return [];
+    const posts = await this.postRepository.findByIds(ids);
+    // const posts = await this.postRepository.findByKeywordAndUser(keyword, userId);
     if(!posts) {
       throw new NotFoundException('Post not found!');
     }
@@ -219,6 +236,7 @@ export class PostService {
     if(!savedPost) {
       throw new Error('Update post failed');
     }
+    await this.searchService.updateDocument(post);
     const postWithUrl = addBaseURLInPost(post);
 
     this.updateCaches(POST_UPDATE_CACHE_OPTIONS.UPDATE, userId, postWithUrl);
