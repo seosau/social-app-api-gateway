@@ -64,32 +64,43 @@ export class PostService {
   
   async updateCaches (updateOption: string, userId: string, postWithUrl: Post) {
     const cacheAllPosts = (await this.cacheManager.get(POST_CACHE_KEYS.ALL_POSTS)) as Post[] || [];
+    if(cacheAllPosts.length > 0) {
+      switch (updateOption){
+        case POST_UPDATE_CACHE_OPTIONS.CREATE: {
+          const newCacheAllPosts = [postWithUrl, ...cacheAllPosts];
+          await this.cacheManager.set(POST_CACHE_KEYS.ALL_POSTS, newCacheAllPosts);
+          break;
+        }
+        case POST_UPDATE_CACHE_OPTIONS.UPDATE: {
+          const newCacheAllPosts = cacheAllPosts.map(p => p.id === postWithUrl.id? postWithUrl : p);
+          await this.cacheManager.set(POST_CACHE_KEYS.ALL_POSTS, newCacheAllPosts);
+          break;
+        }
+        case POST_UPDATE_CACHE_OPTIONS.DELETE: {
+          const newCacheAllPosts = cacheAllPosts.filter(p => p.id !== postWithUrl.id);
+          await this.cacheManager.set(POST_CACHE_KEYS.ALL_POSTS, newCacheAllPosts);
+          break;
+        }
+      }
+    } 
     const cachePostsUser = (await this.cacheManager.get(POST_CACHE_KEYS.POSTS_BY_USER(userId))) as Post[] || [];
-
-    switch (updateOption){
-      case POST_UPDATE_CACHE_OPTIONS.CREATE: {
-        const newCacheAllPosts = [postWithUrl, ...cacheAllPosts];
-        await this.cacheManager.set(POST_CACHE_KEYS.ALL_POSTS, newCacheAllPosts);
-    
-        const newCachePostsUser = [postWithUrl, ...cachePostsUser];
-        await this.cacheManager.set(POST_CACHE_KEYS.POSTS_BY_USER(userId), newCachePostsUser);
-        break;
-      }
-      case POST_UPDATE_CACHE_OPTIONS.UPDATE: {
-        const newCacheAllPosts = cacheAllPosts.map(p => p.id === postWithUrl.id? postWithUrl : p);
-        await this.cacheManager.set(POST_CACHE_KEYS.ALL_POSTS, newCacheAllPosts);
-    
-        const newCachePostsUser = cachePostsUser.map(p => p.id === postWithUrl.id? postWithUrl : p)
-        await this.cacheManager.set(POST_CACHE_KEYS.POSTS_BY_USER(userId), newCachePostsUser);
-        break;
-      }
-      case POST_UPDATE_CACHE_OPTIONS.DELETE: {
-        const newCacheAllPosts = cacheAllPosts.filter(p => p.id !== postWithUrl.id);
-        await this.cacheManager.set(POST_CACHE_KEYS.ALL_POSTS, newCacheAllPosts);
-    
-        const newCachePostsUser = cachePostsUser.filter(p => p.id !== postWithUrl.id)
-        await this.cacheManager.set(POST_CACHE_KEYS.POSTS_BY_USER(userId), newCachePostsUser);
-        break;
+    if(cachePostsUser.length > 0) {
+      switch (updateOption){
+        case POST_UPDATE_CACHE_OPTIONS.CREATE: {
+          const newCachePostsUser = [postWithUrl, ...cachePostsUser];
+          await this.cacheManager.set(POST_CACHE_KEYS.POSTS_BY_USER(userId), newCachePostsUser);
+          break;
+        }
+        case POST_UPDATE_CACHE_OPTIONS.UPDATE: {
+          const newCachePostsUser = cachePostsUser.map(p => p.id === postWithUrl.id? postWithUrl : p)
+          await this.cacheManager.set(POST_CACHE_KEYS.POSTS_BY_USER(userId), newCachePostsUser);
+          break;
+        }
+        case POST_UPDATE_CACHE_OPTIONS.DELETE: {
+          const newCachePostsUser = cachePostsUser.filter(p => p.id !== postWithUrl.id)
+          await this.cacheManager.set(POST_CACHE_KEYS.POSTS_BY_USER(userId), newCachePostsUser);
+          break;
+        }
       }
     }
   }
