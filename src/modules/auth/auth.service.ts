@@ -1,13 +1,15 @@
-import { BadRequestException, ConflictException, Injectable } from '@nestjs/common';
+import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { addBaseURL } from '../../utils/addBaseURL';
 import { UserRepository } from '../user/user.repository';
+import { JwtService } from '@nestjs/jwt';
  
 @Injectable()
 export class AuthService {
   constructor(
     private userRepository: UserRepository,
+    private jwtService: JwtService,
   ){}
   async register(createUserDto: CreateUserDto) {
     const existedUser = await this.userRepository.findByEmail(createUserDto.email);
@@ -22,9 +24,14 @@ export class AuthService {
     const existedUser = await this.userRepository.findByEmailAndPassword(loginUserDto.email, loginUserDto.password);
 
     if(!existedUser) {
-      throw new BadRequestException('Invalid credentials!')
+      throw new UnauthorizedException('Invalid credentials!')
     }
     const existedUserWithImg = {...existedUser, image: addBaseURL(existedUser.image) }
-    return existedUserWithImg;
+    const payload = { sub: existedUserWithImg.id, email: existedUserWithImg.email};
+    // return existedUserWithImg;
+    return {
+      user: existedUserWithImg,
+      access_token: await this.jwtService.signAsync(payload)
+    }
   }
 }

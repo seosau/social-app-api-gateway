@@ -1,15 +1,17 @@
-import { Controller, Get, Post, Body, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Req, Query, Patch, UploadedFiles } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, Delete, UseInterceptors, UploadedFile, BadRequestException, Req, Query, Patch, UploadedFiles, UseGuards } from '@nestjs/common';
 import { PostService } from './post.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { extname } from 'path';
 import { diskStorage } from 'multer';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { AuthGuard } from '../../guards/auth.guard';
 
 @Controller('post')
 export class PostController {
   constructor(private readonly postService: PostService) {}
 
+  @UseGuards(AuthGuard)
   @Post()
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
@@ -27,7 +29,7 @@ export class PostController {
     @UploadedFile() file: Express.Multer.File,
   ) {
     const imageFile = file.filename;
-    const userId = req.headers['authorization']
+    const userId = req['user'].sub;
     return await this.postService.create(createPostDto, imageFile, userId);
   }
 

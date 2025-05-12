@@ -12,6 +12,7 @@ import { join } from 'path';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
 import { MetricsModule } from './metrics/metrics.module';
+import { JwtModule } from '@nestjs/jwt';
  
 @Module({
   imports: [
@@ -63,6 +64,15 @@ import { MetricsModule } from './metrics/metrics.module';
         };
       },
     }),    
+    JwtModule.registerAsync({
+      global: true,
+      // imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: async (configService: ConfigService) => ({
+        secret: configService.get<string>('JWT_SECRET'),
+        signOptions: { expiresIn: '1h' },
+      }),
+    }),
     // DatabaseModule,
     AuthModule,
     UserModule,

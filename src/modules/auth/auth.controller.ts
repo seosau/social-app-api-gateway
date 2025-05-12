@@ -1,8 +1,9 @@
-import { Controller, Post, Body, HttpCode } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, Res } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
+import { Response } from 'express';
 
 @Controller('auth')
 export class AuthController {
@@ -21,7 +22,20 @@ export class AuthController {
   @HttpCode(200)
   @ApiOkResponse({ description: 'Login successfully!'})
   @ApiBadRequestResponse({ description: 'Email or password is incorrect'})
-  async login(@Body() loginUserDto: LoginUserDto) {
-    return await this.authService.login(loginUserDto);
+  async login(
+    @Body() loginUserDto: LoginUserDto,
+    @Res({ passthrough: true }) response: Response,
+  ) {
+    const { access_token, user } = await this.authService.login(loginUserDto);
+
+    response.cookie('access_token', access_token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 3600000, // 1 giờ
+    });
+
+    return {user};
+    // return await this.authService.login(loginUserDto);
   }
 }
