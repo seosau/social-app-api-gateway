@@ -1,4 +1,3 @@
-// src/services/elasticsearch.service.ts
 import { Injectable } from '@nestjs/common';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
 import { Post } from 'src/modules/post/entities/post.entity';
@@ -9,7 +8,6 @@ export class SearchService {
     private readonly elasticsearchService: ElasticsearchService
   ) {}
 
-  // async indexDocument(index: string, document: any) {
   async indexDocument(post: Post) {
     return this.elasticsearchService.index({
       index: 'posts',
@@ -23,13 +21,15 @@ export class SearchService {
     });
   }
 
-  async search(index: string, query: any) {
-    return this.elasticsearchService.search({
+  async search(index: string, keyword: string, userId: string = "") {
+    const result = await this.elasticsearchService.search({
       index,
-      body: {
-        query,
-      },
+      body: this.createQueryBuilder(keyword, userId),
     });
+    return result.hits.hits.map(hit => ({
+      id: hit._id,
+      // ...hit._source,
+    }));
   }
 
   async updateDocument(post: Post) {
@@ -54,5 +54,7 @@ export class SearchService {
     });
   }
 
-  // ...thêm logic nghiệp vụ khác
+  createQueryBuilder(keyword: string, userId: string = "") {
+    return {};
+  }
 }

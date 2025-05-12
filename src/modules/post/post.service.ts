@@ -1,109 +1,16 @@
-import { ForbiddenException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { ForbiddenException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
 import { PostRepository } from './post.repository';
 import { UserRepository } from '../user/user.repository';
-import { addBaseURLInPost, addBaseURLInPosts } from '../../utils/addBaseURLInPosts';
 import { UpdatePostDto } from './dto/update-post.dto';
-import { Cache } from 'cache-manager';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { POST_CACHE_KEYS, POST_UPDATE_CACHE_OPTIONS } from './post.cache-manager';
 import { Post } from './entities/post.entity';
-import { SearchService } from '../../services/elasticsearch.service';
 
 @Injectable()
 export class PostService {
   constructor(
     private readonly postRepository: PostRepository,
     private readonly userRepository: UserRepository,
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
-    private readonly searchService: SearchService
   ){}
-
-  async indexPost(post: Post) {
-    return this.searchService.indexDocument(post)
-  }
-
-  async searchPosts(keyword: string) {
-    const {hits} = await this.searchService.search('posts',{
-      multi_match: {
-        query: keyword,
-        fields: ['access', 'content', 'userId']
-      },
-    });
-
-    return hits.hits.map(hit => ({
-      id: hit._id,
-      // ...hit._source,
-    }));
-  }
-  async searchPostsWithUser(keyword: string, userId: string) {
-    const result = await this.searchService.search('posts', {
-      bool: {
-        must: [
-          {
-            multi_match: {
-              query: keyword,
-              fields: ['content', 'access'], // các trường bạn muốn tìm kiếm
-            },
-          },
-          {
-            term: {
-              userId: userId,  // điều kiện tìm kiếm theo userId
-            },
-          },
-        ],
-      },
-    });
-  
-    return result.hits.hits.map(hit => ({
-      id: hit._id,
-      // ...hit._source,
-    }));
-  }
-  
-  async updateCaches (updateOption: string, userId: string, postWithUrl: Post) {
-    const cacheAllPosts = (await this.cacheManager.get(POST_CACHE_KEYS.ALL_POSTS)) as Post[] || [];
-    if(cacheAllPosts.length > 0) {
-      switch (updateOption){
-        case POST_UPDATE_CACHE_OPTIONS.CREATE: {
-          const newCacheAllPosts = [postWithUrl, ...cacheAllPosts];
-          await this.cacheManager.set(POST_CACHE_KEYS.ALL_POSTS, newCacheAllPosts);
-          break;
-        }
-        case POST_UPDATE_CACHE_OPTIONS.UPDATE: {
-          const newCacheAllPosts = cacheAllPosts.map(p => p.id === postWithUrl.id? postWithUrl : p);
-          await this.cacheManager.set(POST_CACHE_KEYS.ALL_POSTS, newCacheAllPosts);
-          break;
-        }
-        case POST_UPDATE_CACHE_OPTIONS.DELETE: {
-          const newCacheAllPosts = cacheAllPosts.filter(p => p.id !== postWithUrl.id);
-          await this.cacheManager.set(POST_CACHE_KEYS.ALL_POSTS, newCacheAllPosts);
-          break;
-        }
-      }
-    } 
-    const cachePostsUser = (await this.cacheManager.get(POST_CACHE_KEYS.POSTS_BY_USER(userId))) as Post[] || [];
-    if(cachePostsUser.length > 0) {
-      switch (updateOption){
-        case POST_UPDATE_CACHE_OPTIONS.CREATE: {
-          const newCachePostsUser = [postWithUrl, ...cachePostsUser];
-          await this.cacheManager.set(POST_CACHE_KEYS.POSTS_BY_USER(userId), newCachePostsUser);
-          break;
-        }
-        case POST_UPDATE_CACHE_OPTIONS.UPDATE: {
-          const newCachePostsUser = cachePostsUser.map(p => p.id === postWithUrl.id? postWithUrl : p)
-          await this.cacheManager.set(POST_CACHE_KEYS.POSTS_BY_USER(userId), newCachePostsUser);
-          break;
-        }
-        case POST_UPDATE_CACHE_OPTIONS.DELETE: {
-          const newCachePostsUser = cachePostsUser.filter(p => p.id !== postWithUrl.id)
-          await this.cacheManager.set(POST_CACHE_KEYS.POSTS_BY_USER(userId), newCachePostsUser);
-          break;
-        }
-      }
-    }
-  }
 
   async create(createPostDto: CreatePostDto, image: string, userId: string) {
     const user = await this.userRepository.findById(userId);
@@ -116,30 +23,13 @@ export class PostService {
       throw new InternalServerErrorException('Create post failed!');
     }
 
-    await this.indexPost(post);
-
-    const postWithRelations = await this.postRepository.findById(post.id);
-    if(!postWithRelations){
-      throw new NotFoundException('Post not found');
-    }
-    const postWithUrl = addBaseURLInPost(postWithRelations);
-    await this.updateCaches(POST_UPDATE_CACHE_OPTIONS.CREATE, userId, postWithUrl);
-
     return post;
   }
 
   async findAll() {
-    const cacheKey = POST_CACHE_KEYS.ALL_POSTS;
-    const cachePosts = await this.cacheManager.get(cacheKey);
-    if (cachePosts) {
-      return cachePosts;
-    }
     const posts = await this.postRepository.findAllWithRelations();
     if (!posts) throw new NotFoundException("Post not found!")
-    
-    const result = addBaseURLInPosts(posts)
-    await this.cacheManager.set(cacheKey, result);
-    return result;
+    return posts;
   }
 
   async findAllByUser (userId: string) {
@@ -149,23 +39,13 @@ export class PostService {
       throw new NotFoundException('User not found!')
     }
 
-    const cacheKey = POST_CACHE_KEYS.POSTS_BY_USER(userId);
-    const cachePosts = await this.cacheManager.get(cacheKey);
-    if(cachePosts) {
-      return cachePosts;
-    }
-
     const posts = await this.postRepository.findAllByUser(existedUser.id);
 
     if (!posts) {
       throw new NotFoundException('Post not found!')
     }
 
-    const result = addBaseURLInPosts(posts);
-
-    await this.cacheManager.set(cacheKey, result);
-
-    return result;
+    return posts;
   }
   
   async toggleLike(userId: string, postId: string) {
@@ -179,14 +59,12 @@ export class PostService {
     if (index > -1) {
       // Unlike
       post.likedBy.splice(index, 1);
-      await this.postRepository.save(post);
-      await this.updateCaches(POST_UPDATE_CACHE_OPTIONS.UPDATE,userId, addBaseURLInPost(post));
+      await this.postRepository.savePost(user.id, post);
       return { message: 'Post unliked' };
     } else {
       // Like
       post.likedBy.push(user);
-      await this.postRepository.save(post);
-      await this.updateCaches(POST_UPDATE_CACHE_OPTIONS.UPDATE,userId, addBaseURLInPost(post));
+      await this.postRepository.savePost(user.id, post);
       return { message: 'Post liked' };
     }
   }
@@ -200,35 +78,24 @@ export class PostService {
     if(user.id !== post.user.id) {
       throw new ForbiddenException('You are not allow to delete this post')
     }
-    this.postRepository.softRemove(post);
-    await this.searchService.deleteDocument(post.id);
-
-    await this.updateCaches(POST_UPDATE_CACHE_OPTIONS.DELETE, userId, addBaseURLInPost(post));
+    this.postRepository.softRemovePost(user.id, post);
     return {message: 'Post deleted'};
   }
 
   async findByKeyword(keyword: string) {
-    const eltPosts = await this.searchPosts(keyword);
-    const ids = eltPosts.map(post => post.id);
-    if(ids.length === 0) return [];
-    const posts = await this.postRepository.findByIds(ids);
-    // const posts = await this.postRepository.findByKeyword(keyword);
+    const posts = await this.postRepository.findByKeyword(keyword);
     if(!posts) {
-      throw new NotFoundException('Post not found!');
+      return [];
     }
-    return addBaseURLInPosts(posts);
+    return posts;
   }
 
   async findByKeywordAndUser(keyword: string, userId: string) {
-    const eltPosts = await this.searchPostsWithUser(keyword, userId);
-    const ids = eltPosts.map(post => post.id);
-    if(ids.length === 0) return [];
-    const posts = await this.postRepository.findByIds(ids);
-    // const posts = await this.postRepository.findByKeywordAndUser(keyword, userId);
+    const  posts = await this.postRepository.findByKeyword(keyword,userId);
     if(!posts) {
-      throw new NotFoundException('Post not found!');
+      return [];
     }
-    return addBaseURLInPosts(posts);
+    return posts;
   }
   
   async update (userId: string, updatePostDto: UpdatePostDto, image: string) {
@@ -241,19 +108,10 @@ export class PostService {
     }
     Object.assign(post,{...updatePostDto, image: image});
 
-    // await this.updateCache(userId);
-
-    const savedPost = await this.postRepository.save(post);
+    const savedPost = await this.postRepository.savePost(user.id, post);
     if(!savedPost) {
       throw new Error('Update post failed');
     }
-    await this.searchService.updateDocument(post);
-    const postWithUrl = addBaseURLInPost(post);
-
-    this.updateCaches(POST_UPDATE_CACHE_OPTIONS.UPDATE, userId, postWithUrl);
-
-    return postWithUrl;
-    
-    // return this.postRepository.save(post);
+    return savedPost;
   }
 }

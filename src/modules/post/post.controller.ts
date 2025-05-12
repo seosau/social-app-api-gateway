@@ -87,7 +87,7 @@ export class PostController {
     @Body() updatePostDto: UpdatePostDto,
     @UploadedFile() file: Express.Multer.File
   ) {
-    const userId = req['user'];
+    const userId = req['user'].sub;
     const image = file.filename;
     return this.postService.update(userId, updatePostDto, image);
   }

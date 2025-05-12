@@ -7,6 +7,7 @@ import { User } from '../user/entities/user.entity';
 import { PostRepository } from './post.repository';
 import { UserRepository } from '../user/user.repository';
 import { MetricsModule } from '../../metrics/metrics.module';
+import { PostSearchService } from './post.searchService';
 
 @Module({
   imports: [
@@ -14,6 +15,6 @@ import { MetricsModule } from '../../metrics/metrics.module';
     MetricsModule
   ],
   controllers: [PostController],
-  providers: [PostService, PostRepository, UserRepository],
+  providers: [PostService, PostRepository, UserRepository, PostSearchService],
 })
 export class PostModule {}
