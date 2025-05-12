@@ -1,9 +1,10 @@
-import { Controller, Get, Body, Patch, Param, Req, UseInterceptors, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Body, Patch, Param, Req, UseInterceptors, UploadedFile, UseGuards } from '@nestjs/common';
 import { UserService } from './user.service';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
+import { AuthGuard } from '../../guards/auth.guard';
 
 @Controller('user')
 export class UserController {
@@ -14,6 +15,7 @@ export class UserController {
     return this.userService.findOne(userId);
   }
 
+  @UseGuards(AuthGuard)
   @Patch()
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
@@ -30,7 +32,7 @@ export class UserController {
     @Body() updateUserDto: UpdateUserDto,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    const userId = req.headers['authorization']
+    const userId = req['user'].sub;
     updateUserDto.image = file.filename
     return this.userService.update(userId, updateUserDto);
   }

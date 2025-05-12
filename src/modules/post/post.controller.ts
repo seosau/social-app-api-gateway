@@ -56,18 +56,21 @@ export class PostController {
     return this.postService.findAll();
   }
 
+  @UseGuards(AuthGuard)
   @Post(':id/toggleLike')
   async likePost(@Param('id') postId: string, @Req() req: Request) {
-    const userId = req.headers['authorization']
+    const userId = req['user'].sub;
     return this.postService.toggleLike(userId, postId);
   }
 
+  @UseGuards(AuthGuard)
   @Delete('/:id')
   async delete(@Param('id') postId: string, @Req() req: Request) {
-    const userId = req.headers['authorization']
+    const userId = req['user'].sub
     return this.postService.delete(userId, postId);
   }
 
+  @UseGuards(AuthGuard)
   @Patch()
   @UseInterceptors(FileInterceptor('image', {
     storage: diskStorage({
@@ -84,7 +87,7 @@ export class PostController {
     @Body() updatePostDto: UpdatePostDto,
     @UploadedFile() file: Express.Multer.File
   ) {
-    const userId = req.headers['authorization'];
+    const userId = req['user'];
     const image = file.filename;
     return this.postService.update(userId, updatePostDto, image);
   }
