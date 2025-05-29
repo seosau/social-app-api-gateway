@@ -1,0 +1,65 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model post {
+  id                 String               @id(map: "PK_be5fda3aac270b134ff9c21cdee") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  access             String               @db.VarChar
+  content            String
+  image              String?              @db.VarChar
+  createdAt          DateTime             @default(now()) @db.Timestamp(6)
+  updatedAt          DateTime             @default(now()) @db.Timestamp(6)
+  deletedAt          DateTime?            @db.Timestamp(6)
+  userId             String?              @db.Uuid
+  user               user?                @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_5c1cf55c308037b5aca1038a131")
+  post_liked_by_user post_liked_by_user[]
+}
+
+model post_liked_by_user {
+  postId String @db.Uuid
+  userId String @db.Uuid
+  user   user   @relation(fields: [userId], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "FK_881d775c205c0ffdf10031e5cab")
+  post   post   @relation(fields: [postId], references: [id], onDelete: Cascade, map: "FK_fe77d226ba9995f4465341080c3")
+
+  @@id([postId, userId], map: "PK_026bf754be74bd293c9e7774f05")
+  @@index([userId], map: "IDX_881d775c205c0ffdf10031e5ca")
+  @@index([postId], map: "IDX_fe77d226ba9995f4465341080c")
+}
+
+model user {
+  id                 String               @id(map: "PK_cace4a159ff9f2512dd42373760") @default(dbgenerated("uuid_generate_v4()")) @db.Uuid
+  fullName           String               @db.VarChar
+  email              String               @unique(map: "UQ_e12875dfb3b1d92d7d7c5377e22") @db.VarChar
+  password           String               @db.VarChar
+  image              String?              @db.VarChar
+  createdAt          DateTime             @default(now()) @db.Timestamp(6)
+  updatedAt          DateTime             @default(now()) @db.Timestamp(6)
+  deletedAt          DateTime?            @db.Timestamp(6)
+  post               post[]
+  post_liked_by_user post_liked_by_user[]
+  story              story[]
+}
+
+model story {
+    id              String                  @id @default(uuid())
+    image           String                  @db.VarChar()
+    createdAt       DateTime                @default(now()) @db.Timestamp(6)
+    updateAt        DateTime                @updatedAt
+    userId          String                  @db.Uuid
+    user            user                    @relation(fields: [userId], references: [id])
+    deletedAt       DateTime?               @db.Timestamp(6)
+}
+
+model Message {
+  id        String   @id @default(uuid())
+  senderId  String
+  receiverId String
+  content   String
+  timestamp String
+}

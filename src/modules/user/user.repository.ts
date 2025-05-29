@@ -36,8 +36,7 @@ export class UserRepository extends Repository<User> {
         return this.findOne({
             where: {
                 email: email
-            },
-            select: ['id', 'email', 'password']
+            }
         })
     }
 

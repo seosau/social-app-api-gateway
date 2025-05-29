@@ -15,7 +15,7 @@ export class User {
     @IsEmail()
     email: string
 
-    @Column({ select: false })
+    @Column()
     @MinLength(6)
     password: string;
 

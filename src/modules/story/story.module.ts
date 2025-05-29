@@ -1,0 +1,21 @@
+import { Module } from '@nestjs/common';
+import { StoryService } from './story.service';
+import { StoryController } from './story.controller';
+import { PrismaModule } from '../../config/database/prisma/prisma.module';
+import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
+import { CreateStoryPipe } from '../../pipes/create-story.pipe';
+import { StoryEventsController } from './story-events.controller';
+import { RabbitMQModule } from '../../config/rabbitMQ/rabbitMQ.module';
+import { JobModule } from '../../config/bullMQ/job.module';
+
+@Module({
+  imports: [PrismaModule, RabbitMQModule, JobModule],
+  controllers: [StoryController, StoryEventsController],
+  providers: [
+    StoryService,
+    // LoggingInterceptor,
+    // CreateStoryPipe,
+  ],
+  exports: [StoryModule]
+})
+export class StoryModule {}

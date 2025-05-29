@@ -29,9 +29,6 @@ export class AuthService {
     if(!existedUser) {
       throw new UnauthorizedException('Invalid credentials!')
     }
-    console.log('=========================', loginUserDto);
-    console.log('=========================11111111111', existedUser);
-
     const isMatch = await bcrypt.compare(loginUserDto.password, existedUser.password);
     if(!isMatch) {
       throw new UnauthorizedException('Invalid credentials!')

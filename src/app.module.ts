@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 // import { envSchema } from './config/envValidate';
 // import { DatabaseModule } from './config/database/database.module';
@@ -8,20 +8,35 @@ import { UserModule } from './modules/user/user.module';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmAsyncConfig } from './config/typeorm.config';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
-import { join } from 'path';
+import path, { join } from 'path';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
 import { MetricsModule } from './metrics/metrics.module';
 import { JwtModule } from '@nestjs/jwt';
+import { PrismaModule } from './config/database/prisma/prisma.module';
+import { StoryModule } from './modules/story/story.module';
+import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { throttlerConfig } from './config/throttler.config';
+import { APP_GUARD } from '@nestjs/core';
+import { RabbitMQModule } from './config/rabbitMQ/rabbitMQ.module';
+import { BullModule } from '@nestjs/bullmq'
+import { PrometheusModule } from '@willsoto/nestjs-prometheus';
+import { MetricsMiddleware } from './Monitoring/middlewares/metrics.middleware';
+import { MonitoringModule } from './Monitoring/monitoring.module';
+import { LoggerModule } from 'nestjs-pino';
+import * as fs from 'fs';
+
  
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
     }),
+    ThrottlerModule.forRootAsync(throttlerConfig),
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
     ServeStaticModule.forRoot({
         rootPath: join(__dirname, '..', 'upload'),
+        exclude: ['/metrics']
     }),
     MetricsModule,
     CacheModule.registerAsync({
@@ -73,12 +88,59 @@ import { JwtModule } from '@nestjs/jwt';
         signOptions: { expiresIn: '1h' },
       }),
     }),
+    BullModule.forRoot({
+      connection: {
+        host: 'redis',
+        port: 6379
+      }
+    }),
     // DatabaseModule,
+    LoggerModule.forRoot({
+      pinoHttp: {
+        level: process.env.NODE_ENV === 'production' ? 'info' : 'debug',
+        transport: process.env.NODE_ENV === 'production' ? undefined : {
+          target: 'pino-pretty',
+          options: {
+            colorize: true,
+            translateTime: 'SYS:standard',
+            ignore: 'pid,hostname',
+          },
+        },
+        stream: fs.createWriteStream(join(__dirname, '..', 'logs', 'app.log'), { flags: 'a' }),
+        serializers: {
+          req(req) {
+            return {
+              method: req.method,
+              url: req.url,
+              id: req.id
+            }
+          },
+          res(res) {
+            return {StatusCode: res.statusCode}
+          }
+        }
+      },
+    }),
+    PrometheusModule.register(),
+    PrismaModule,
     AuthModule,
     UserModule,
     PostModule,
+    StoryModule,
+    RabbitMQModule,
+    MonitoringModule
   ],
   controllers: [],
-  providers: [],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard
+    },
+    MetricsMiddleware
+  ],
 })
-export class AppModule {}
+export class AppModule implements NestModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer.apply(MetricsMiddleware).forRoutes('*')
+  }
+}

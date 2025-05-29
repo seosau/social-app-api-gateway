@@ -17,7 +17,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
           entities: [__dirname + '/../**/*.entity.{js,ts}'],
         //   migrations: [__dirname + '/migrations/*.{ts,js}'],
         //   migrationsTableName: 'migrations',
-          synchronize: configService.get('NODE_ENV') === 'development',
+          // synchronize: configService.get('NODE_ENV') === 'development',
+          synchronize: false,
         //   ssl:
         //     configService.get('NODE_ENV') !== 'development'
         //       ? { rejectUnauthorized: false }

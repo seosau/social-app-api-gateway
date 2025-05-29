@@ -2,9 +2,30 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import * as cookieParser from 'cookie-parser';
+import rateLimit from 'express-rate-limit';
+import { MicroserviceOptions, Transport } from '@nestjs/microservices';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { Logger } from 'nestjs-pino';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+    bufferLogs: true
+  });
+
+  app.useLogger(app.get(Logger))
+
+  app.connectMicroservice<MicroserviceOptions>({
+    transport: Transport.RMQ,
+    options: {
+      urls: ['amqp://guest:guest@rabbitmq:5672'],
+      queue: 'cats_queue',
+      queueOptions: {
+        durable: false,
+      },
+    },
+  });
+  
+  await app.startAllMicroservices();  
   app.setGlobalPrefix('api');
   app.enableCors({
     origin: process.env.CLIENT_URLS,
@@ -22,6 +43,13 @@ async function bootstrap() {
   const document = SwaggerModule.createDocument(app, config);
   SwaggerModule.setup('api-docs', app, document);
   app.use(cookieParser());
+  // app.use(rateLimit({
+  //   windowMs: 60*1000,
+  //   limit: 10,
+  //   message: 'Too many requests, please try again later!'
+  // }))
+  app.useGlobalFilters(); // ok
+  // app.useStaticAssets();
   await app.listen(process.env.PORT ?? 3002);
 }
 bootstrap();
