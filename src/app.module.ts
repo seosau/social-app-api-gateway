@@ -69,6 +69,7 @@ import * as fs from 'fs';
               username: configService.get('REDIS_USERNAME'),
               password: configService.get('REDIS_PASSWORD'),
               ttl: configService.get<number>('CACHE_TTL', 600), // seconds
+              maxRetriesPerRequest: 1000000
             });
             break; // success
           } catch (err) {
@@ -117,7 +118,7 @@ import * as fs from 'fs';
             password: config.get<string>('REDIS_PASSWORD'),
             username: config.get<string>('REDIS_USERNAME'),
             tls: {},
-            maxRetriesPerRequest: null,
+            maxRetriesPerRequest: 1000000,
           }
         }
       }
