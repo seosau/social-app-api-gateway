@@ -3,6 +3,8 @@ import { Worker } from "bullmq";
 import * as gm from 'gm';
 
 
+const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const url = new URL(redisUrl);
 @Injectable()
 export class JobProcessor implements OnModuleInit {
     onModuleInit() {
@@ -39,7 +41,11 @@ export class JobProcessor implements OnModuleInit {
                 console.error('Error processing resize job:', error);
               }
             },
-            { connection: { host: 'redis', port: 6379 } }
+            { connection: { 
+                host: url.host,
+                port: Number(url.port) || 6379,
+                password: url.password,              
+             }}
           );
     }
 }
