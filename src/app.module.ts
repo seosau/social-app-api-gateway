@@ -54,11 +54,21 @@ import * as fs from 'fs';
     
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
           try {
+            // store = await redisStore({
+            //   url: redisUrl,
+            //   ttl,
+            //   connectTimeout: 10000,
+            //   maxRetriesPerRequest: null,
+            // });
             store = await redisStore({
-              url: redisUrl,
-              ttl,
-              connectTimeout: 10000,
-              maxRetriesPerRequest: null,
+              socket: {
+                host: configService.get('REDIS_HOST'),
+                port: configService.get<number>('REDIS_PORT'),
+                tls: true, // <- Quan trọng: Dùng TLS
+              },
+              username: configService.get('REDIS_USERNAME'),
+              password: configService.get('REDIS_PASSWORD'),
+              ttl: configService.get<number>('CACHE_TTL', 600), // seconds
             });
             break; // success
           } catch (err) {
