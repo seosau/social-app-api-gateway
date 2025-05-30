@@ -117,6 +117,7 @@ import * as fs from 'fs';
             password: config.get<string>('REDIS_PASSWORD'),
             username: config.get<string>('REDIS_USERNAME'),
             tls: {},
+            maxRetriesPerRequest: null,
           }
         }
       }
