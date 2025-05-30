@@ -102,9 +102,10 @@ import * as fs from 'fs';
     
         return {
           connection: {
-            host: url.hostname,
-            port: Number(url.port),
-            password: url.password,
+            host: config.get<string>('REDIS_HOST'),
+            port: Number(config.get<string>('REDIS_PORT')),
+            password: config.get<string>('REDIS_PASSWORD'),
+            username: config.get<string>('REDIS_USERNAME'),
             tls: url.protocol === 'rediss:' ? {} : undefined,
           }
         }

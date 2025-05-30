@@ -9,9 +9,10 @@ export class JobQueue {
     constructor() {
         this.queue = new Queue('resize-image', {
             connection: {
-                host: url.host,
-                port: Number(url.port) || 6379,
-                password: url.password,
+                host: process.env.REDIS_HOST,
+                port: Number(process.env.REDIS_PORT),
+                password: process.env.REDIS_PASSWORD,
+                username: process.env.REDIS_USERNAME
             },
         })
     }
