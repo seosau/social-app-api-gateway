@@ -9,7 +9,7 @@ RUN npm install
 
 COPY . .
 
-RUN npx prisma generate
+RUN npx prisma generate --schema=./src/config/database/prisma/schema.prisma
 RUN npm run build
 
 RUN apk add --no-cache graphicsmagick
