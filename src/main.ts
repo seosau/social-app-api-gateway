@@ -7,6 +7,7 @@ import { MicroserviceOptions, Transport } from '@nestjs/microservices';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { Logger } from 'nestjs-pino';
 
+const port = process.env.PORT || 4000
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bufferLogs: true
@@ -50,6 +51,7 @@ async function bootstrap() {
   // }))
   app.useGlobalFilters(); // ok
   // app.useStaticAssets();
-  await app.listen(process.env.PORT ?? 3002);
+  await app.listen(port);
+  // await app.listen(process.env.PORT ?? 3002);
 }
 bootstrap();
