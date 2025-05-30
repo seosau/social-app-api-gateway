@@ -14,6 +14,8 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
     entities: [__dirname + '/../../**/*.entity.{ts,js}'],
     synchronize: true,
     // synchronize: configService.get('NODE_ENV') === 'development',
-    ssl: true,
+    ssl: {
+      rejectUnauthorized: false,
+    }    
   }),
 };
