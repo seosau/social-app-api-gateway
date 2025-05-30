@@ -16,4 +16,4 @@ RUN apk add --no-cache graphicsmagick
 
 EXPOSE 3011
 
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start"]
