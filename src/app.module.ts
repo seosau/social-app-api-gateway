@@ -88,10 +88,26 @@ import * as fs from 'fs';
         signOptions: { expiresIn: '1h' },
       }),
     }),
-    BullModule.forRoot({
-      connection: {
-        host: 'redis',
-        port: 6379
+    // BullModule.forRoot({
+    //   connection: {
+    //     host: 'redis',
+    //     port: 6379
+    //   }
+    // }),
+    BullModule.forRootAsync({
+      inject: [ConfigService],
+      useFactory: async (config: ConfigService) => {
+        const redisUrl = config.get<string>('REDIS_URL', 'redis://localhost:6379');
+        const url = new URL(redisUrl);
+    
+        return {
+          connection: {
+            host: url.hostname,
+            port: Number(url.port),
+            password: url.password,
+            tls: url.protocol === 'rediss:' ? {} : undefined,
+          }
+        }
       }
     }),
     // DatabaseModule,
