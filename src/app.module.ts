@@ -58,7 +58,7 @@ import * as fs from 'fs';
               url: redisUrl,
               ttl,
               connectTimeout: 10000,
-              maxRetriesPerRequest: 3,
+              maxRetriesPerRequest: null,
             });
             break; // success
           } catch (err) {
