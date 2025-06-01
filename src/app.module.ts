@@ -39,58 +39,65 @@ import * as fs from 'fs';
         exclude: ['/metrics']
     }),
     MetricsModule,
-    CacheModule.registerAsync({
+    // CacheModule.registerAsync({
+    //   isGlobal: true,
+    //   inject: [ConfigService],
+    //   useFactory: async (configService: ConfigService) => {
+    //     const redisUrl = configService.get<string>('REDIS_URL');
+    //     const ttl = configService.get<number>('CACHE_TTL', 600000);
+    
+    //     const maxRetries = 5;
+    //     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    
+    //     let store: any = null;
+    //     let lastError = null;
+    
+    //     for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    //       try {
+    //         store = await redisStore({
+    //           url: redisUrl,
+    //           ttl,
+    //           connectTimeout: 10000,
+    //           maxRetriesPerRequest: null,
+    //         });
+    //         // store = await redisStore({
+    //         //   socket: {
+    //         //     host: configService.get('REDIS_HOST'),
+    //         //     port: configService.get<number>('REDIS_PORT'),
+    //         //     tls: true, // <- Quan trọng: Dùng TLS
+    //         //   },
+    //         //   username: configService.get('REDIS_USERNAME'),
+    //         //   password: configService.get('REDIS_PASSWORD'),
+    //         //   ttl: configService.get<number>('CACHE_TTL', 600), // seconds
+    //         //   maxRetriesPerRequest: 1000000
+    //         // });
+    //         console.log('=========================================================', store)
+    //         break; // success
+    //       } catch (err) {
+    //         lastError = err;
+    //         console.warn(`⚠️ Redis connection attempt ${attempt} failed. Retrying in 2s...`);
+    //         await delay(2000);
+    //       }
+    //     }
+    
+    //     if (!store) {
+    //       console.error('❌ Failed to connect to Redis after multiple attempts:', lastError);
+    //       throw lastError;
+    //     }
+    
+    //     return {
+    //       store,
+    //       ttl,
+    //     };
+    //   },
+    // }),    
+
+    CacheModule.register({
       isGlobal: true,
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => {
-        const redisUrl = configService.get<string>('REDIS_URL');
-        const ttl = configService.get<number>('CACHE_TTL', 600000);
-    
-        const maxRetries = 5;
-        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-    
-        let store: any = null;
-        let lastError = null;
-    
-        for (let attempt = 1; attempt <= maxRetries; attempt++) {
-          try {
-            store = await redisStore({
-              url: redisUrl,
-              ttl,
-              connectTimeout: 10000,
-              maxRetriesPerRequest: null,
-            });
-            // store = await redisStore({
-            //   socket: {
-            //     host: configService.get('REDIS_HOST'),
-            //     port: configService.get<number>('REDIS_PORT'),
-            //     tls: true, // <- Quan trọng: Dùng TLS
-            //   },
-            //   username: configService.get('REDIS_USERNAME'),
-            //   password: configService.get('REDIS_PASSWORD'),
-            //   ttl: configService.get<number>('CACHE_TTL', 600), // seconds
-            //   maxRetriesPerRequest: 1000000
-            // });
-            console.log('=========================================================', store)
-            break; // success
-          } catch (err) {
-            lastError = err;
-            console.warn(`⚠️ Redis connection attempt ${attempt} failed. Retrying in 2s...`);
-            await delay(2000);
-          }
-        }
-    
-        if (!store) {
-          console.error('❌ Failed to connect to Redis after multiple attempts:', lastError);
-          throw lastError;
-        }
-    
-        return {
-          store,
-          ttl,
-        };
-      },
-    }),    
+      store: redisStore,
+      url: 'rediss://red-d0sispruibrs73afe9g0:SPw6lUPhewn76h3WZHHHwavT5U4ERWza@oregon-keyvalue.render.com:6379'
+    }),
     JwtModule.registerAsync({
       global: true,
       // imports: [ConfigModule],
