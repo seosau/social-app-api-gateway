@@ -16,16 +16,16 @@ async function bootstrap() {
 
   app.useLogger(app.get(Logger))
 
-  app.connectMicroservice<MicroserviceOptions>({
-    transport: Transport.RMQ,
-    options: {
-      urls: ['amqp://guest:guest@rabbitmq:5672'],
-      queue: 'cats_queue',
-      queueOptions: {
-        durable: false,
-      },
-    },
-  });
+  // app.connectMicroservice<MicroserviceOptions>({
+  //   transport: Transport.RMQ,
+  //   options: {
+  //     urls: ['amqp://guest:guest@rabbitmq:5672'],
+  //     queue: 'cats_queue',
+  //     queueOptions: {
+  //       durable: false,
+  //     },
+  //   },
+  // });
   
   await app.startAllMicroservices();  
   app.setGlobalPrefix('api');
