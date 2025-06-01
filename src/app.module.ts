@@ -71,6 +71,7 @@ import * as fs from 'fs';
               ttl: configService.get<number>('CACHE_TTL', 600), // seconds
               maxRetriesPerRequest: 1000000
             });
+            console.log('=========================================================', store)
             break; // success
           } catch (err) {
             lastError = err;
@@ -108,18 +109,17 @@ import * as fs from 'fs';
     BullModule.forRootAsync({
       inject: [ConfigService],
       useFactory: async (config: ConfigService) => {
-        const redisUrl = config.get<string>('REDIS_URL', 'redis://localhost:6379');
-        const url = new URL(redisUrl);
-    
+        const connectData = {
+          host: config.get<string>('REDIS_HOST'),
+          port: config.get<number>('REDIS_PORT'),
+          password: config.get<string>('REDIS_PASSWORD'),
+          username: config.get<string>('REDIS_USERNAME'),
+          tls: {},
+          maxRetriesPerRequest: 1000000,
+        }
+        console.log('1111111111111111111111111111111111111111111111111111111', connectData)
         return {
-          connection: {
-            host: config.get<string>('REDIS_HOST'),
-            port: config.get<number>('REDIS_PORT'),
-            password: config.get<string>('REDIS_PASSWORD'),
-            username: config.get<string>('REDIS_USERNAME'),
-            tls: {},
-            maxRetriesPerRequest: 1000000,
-          }
+          connection: connectData
         }
       }
     }),
