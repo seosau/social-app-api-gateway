@@ -9,9 +9,10 @@ import { Logger } from 'nestjs-pino';
 
 const port = process.env.PORT || 4000
 async function bootstrap() {
-  const app = await NestFactory.create<NestExpressApplication>(AppModule, {
-    bufferLogs: true
-  });
+  const app = await NestFactory.create(AppModule);
+  // const app = await NestFactory.create<NestExpressApplication>(AppModule, {
+  //   bufferLogs: true
+  // });
 
   app.useLogger(app.get(Logger))
 
