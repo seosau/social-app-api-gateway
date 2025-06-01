@@ -9,7 +9,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { typeOrmAsyncConfig } from './config/typeorm.config';
 import { ServeStaticModule } from '@nestjs/serve-static/dist/serve-static.module';
 import path, { join } from 'path';
-import { CacheModule } from '@nestjs/cache-manager';
+// import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-store';
 import { MetricsModule } from './metrics/metrics.module';
 import { JwtModule } from '@nestjs/jwt';
@@ -92,12 +92,12 @@ import * as fs from 'fs';
     //   },
     // }),    
 
-    CacheModule.register({
-      isGlobal: true,
-      inject: [ConfigService],
-      store: redisStore,
-      url: 'rediss://red-d0sispruibrs73afe9g0:SPw6lUPhewn76h3WZHHHwavT5U4ERWza@oregon-keyvalue.render.com:6379'
-    }),
+    // CacheModule.register({
+    //   isGlobal: true,
+    //   inject: [ConfigService],
+    //   store: redisStore,
+    //   url: 'rediss://red-d0sispruibrs73afe9g0:SPw6lUPhewn76h3WZHHHwavT5U4ERWza@oregon-keyvalue.render.com:6379'
+    // }),
     JwtModule.registerAsync({
       global: true,
       // imports: [ConfigModule],

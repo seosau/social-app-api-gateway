@@ -3,9 +3,9 @@ import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
 import { PrismaService } from '../../config/database/prisma/prisma.service';
 // import { ClientProxy } from '@nestjs/microservices';
-import { CACHE_MANAGER } from '@nestjs/cache-manager';
-import { Cache } from 'cache-manager';
-import { STORY_CACHE_KEYS } from './story.cache-manager';
+// import { CACHE_MANAGER } from '@nestjs/cache-manager';
+// import { Cache } from 'cache-manager';
+// import { STORY_CACHE_KEYS } from './story.cache-manager';
 import { Logger } from 'nestjs-pino';
 // import { Prisma } from '@prisma/client';
 // import { ClientKafka } from '@nestjs/microservices';
@@ -18,8 +18,8 @@ export class StoryService {
     // private readonly kafka: ClientKafka
     // @Inject('RABBITMQ_SERVICE')
     // private readonly client: ClientProxy,
-    @Inject(CACHE_MANAGER)
-    private readonly cacheManager: Cache,
+    // @Inject(CACHE_MANAGER)
+    // private readonly cacheManager: Cache,
     private readonly logger: Logger
   ) {}
   async create(data: CreateStoryDto) {
@@ -43,10 +43,10 @@ export class StoryService {
   }
 
   async findAll() {
-    const cacheStory = await this.cacheManager.get(STORY_CACHE_KEYS.ALL_STORIES)
-    if(cacheStory) {
-      return cacheStory
-    }
+    // const cacheStory = await this.cacheManager.get(STORY_CACHE_KEYS.ALL_STORIES)
+    // if(cacheStory) {
+    //   return cacheStory
+    // }
     const res = await this.prisma.story.findMany()
     // this.client.emit('story.getted', res)
     return res;
@@ -54,10 +54,10 @@ export class StoryService {
 
   async findOne(id: string) {
     this.logger.log(`Getting story with condition id: ${id}`)
-    const cacheStory = await this.cacheManager.get(STORY_CACHE_KEYS.STORY_BY_ID(id))
-    if(cacheStory) {
-      return cacheStory
-    }
+    // const cacheStory = await this.cacheManager.get(STORY_CACHE_KEYS.STORY_BY_ID(id))
+    // if(cacheStory) {
+    //   return cacheStory
+    // }
     const res = await this.prisma.story.findFirst({
       where: {
         id: id
