@@ -18,7 +18,7 @@ import { StoryModule } from './modules/story/story.module';
 import { ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { throttlerConfig } from './config/throttler.config';
 import { APP_GUARD } from '@nestjs/core';
-import { RabbitMQModule } from './config/rabbitMQ/rabbitMQ.module';
+// import { RabbitMQModule } from './config/rabbitMQ/rabbitMQ.module';
 import { BullModule } from '@nestjs/bullmq'
 import { PrometheusModule } from '@willsoto/nestjs-prometheus';
 import { MetricsMiddleware } from './Monitoring/middlewares/metrics.middleware';
@@ -163,7 +163,7 @@ import * as fs from 'fs';
     UserModule,
     PostModule,
     StoryModule,
-    RabbitMQModule,
+    // RabbitMQModule,
     MonitoringModule
   ],
   controllers: [],
