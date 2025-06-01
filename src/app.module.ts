@@ -43,7 +43,7 @@ import * as fs from 'fs';
       isGlobal: true,
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => {
-        const redisUrl = configService.get<string>('REDIS_URL', 'redis://localhost:6379');
+        const redisUrl = configService.get<string>('REDIS_URL');
         const ttl = configService.get<number>('CACHE_TTL', 600000);
     
         const maxRetries = 5;
@@ -54,23 +54,23 @@ import * as fs from 'fs';
     
         for (let attempt = 1; attempt <= maxRetries; attempt++) {
           try {
-            // store = await redisStore({
-            //   url: redisUrl,
-            //   ttl,
-            //   connectTimeout: 10000,
-            //   maxRetriesPerRequest: null,
-            // });
             store = await redisStore({
-              socket: {
-                host: configService.get('REDIS_HOST'),
-                port: configService.get<number>('REDIS_PORT'),
-                tls: true, // <- Quan trọng: Dùng TLS
-              },
-              username: configService.get('REDIS_USERNAME'),
-              password: configService.get('REDIS_PASSWORD'),
-              ttl: configService.get<number>('CACHE_TTL', 600), // seconds
-              maxRetriesPerRequest: 1000000
+              url: redisUrl,
+              ttl,
+              connectTimeout: 10000,
+              maxRetriesPerRequest: null,
             });
+            // store = await redisStore({
+            //   socket: {
+            //     host: configService.get('REDIS_HOST'),
+            //     port: configService.get<number>('REDIS_PORT'),
+            //     tls: true, // <- Quan trọng: Dùng TLS
+            //   },
+            //   username: configService.get('REDIS_USERNAME'),
+            //   password: configService.get('REDIS_PASSWORD'),
+            //   ttl: configService.get<number>('CACHE_TTL', 600), // seconds
+            //   maxRetriesPerRequest: 1000000
+            // });
             console.log('=========================================================', store)
             break; // success
           } catch (err) {
