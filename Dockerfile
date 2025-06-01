@@ -14,6 +14,6 @@ RUN npm run build
 
 RUN apk add --no-cache graphicsmagick
 
-EXPOSE 3011
+EXPOSE 4000
 
 CMD ["npm", "run", "start"]
