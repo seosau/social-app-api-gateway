@@ -29,11 +29,27 @@ async function bootstrap() {
   
   await app.startAllMicroservices();  
   app.setGlobalPrefix('api');
+  // app.enableCors({
+  //   origin: process.env.CLIENT_URLS,
+  //   methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
+  //   credentials: true,
+  // })
   app.enableCors({
-    origin: process.env.CLIENT_URLS,
+    origin: (origin, callback) => {
+      const allowedOrigins = (process.env.CLIENT_URLS ?? '')
+        .split(',')
+        .map(url => url.trim());
+  
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS policy does not allow access from origin ${origin}`));
+      }
+    },
     methods: 'GET,HEAD,PUT,PATCH,POST,DELETE',
     credentials: true,
-  })
+  });
+  
 
   const config = new DocumentBuilder()
     .setTitle('API docs')
