@@ -51,7 +51,10 @@ async function bootstrap() {
   // }))
   app.useGlobalFilters(); // ok
   // app.useStaticAssets();
-  await app.listen(port, '0.0.0.0');
+    console.log('11111111111111111111111', port)
+  await app.listen(port, '0.0.0.0',() => {
+    console.log('22222222222222222222222', port)
+  });
   // await app.listen(process.env.PORT ?? 3002);
 }
 bootstrap();
