@@ -106,23 +106,23 @@ import * as fs from 'fs';
     //     port: 6379
     //   }
     // }),
-    BullModule.forRootAsync({
-      inject: [ConfigService],
-      useFactory: async (config: ConfigService) => {
-        const connectData = {
-          host: config.get<string>('REDIS_HOST'),
-          port: config.get<number>('REDIS_PORT'),
-          password: config.get<string>('REDIS_PASSWORD'),
-          username: config.get<string>('REDIS_USERNAME'),
-          tls: {},
-          maxRetriesPerRequest: 1000000,
-        }
-        console.log('1111111111111111111111111111111111111111111111111111111', connectData)
-        return {
-          connection: connectData
-        }
-      }
-    }),
+    // BullModule.forRootAsync({
+    //   inject: [ConfigService],
+    //   useFactory: async (config: ConfigService) => {
+    //     const connectData = {
+    //       host: config.get<string>('REDIS_HOST'),
+    //       port: config.get<number>('REDIS_PORT'),
+    //       password: config.get<string>('REDIS_PASSWORD'),
+    //       username: config.get<string>('REDIS_USERNAME'),
+    //       tls: {},
+    //       maxRetriesPerRequest: 1000000,
+    //     }
+    //     console.log('1111111111111111111111111111111111111111111111111111111', connectData)
+    //     return {
+    //       connection: connectData
+    //     }
+    //   }
+    // }),
     // DatabaseModule,
     LoggerModule.forRoot({
       pinoHttp: {

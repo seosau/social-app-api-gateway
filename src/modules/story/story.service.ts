@@ -2,7 +2,7 @@ import { Inject, Injectable } from '@nestjs/common';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
 import { PrismaService } from '../../config/database/prisma/prisma.service';
-import { ClientProxy } from '@nestjs/microservices';
+// import { ClientProxy } from '@nestjs/microservices';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { STORY_CACHE_KEYS } from './story.cache-manager';
@@ -16,8 +16,8 @@ export class StoryService {
     private readonly prisma: PrismaService,
     // @Inject('KAFKA_SERVICE')
     // private readonly kafka: ClientKafka
-    @Inject('RABBITMQ_SERVICE')
-    private readonly client: ClientProxy,
+    // @Inject('RABBITMQ_SERVICE')
+    // private readonly client: ClientProxy,
     @Inject(CACHE_MANAGER)
     private readonly cacheManager: Cache,
     private readonly logger: Logger
@@ -34,7 +34,7 @@ export class StoryService {
         }
       })
       // this.kafka.emit('story.create',{id: res.id, userId: res.userId});
-      this.client.emit('story.created', res)
+      // this.client.emit('story.created', res)
       return res;      
     } catch(err) {
       this.logger.error('Failed to create', err)
@@ -48,7 +48,7 @@ export class StoryService {
       return cacheStory
     }
     const res = await this.prisma.story.findMany()
-    this.client.emit('story.getted', res)
+    // this.client.emit('story.getted', res)
     return res;
   }
 
@@ -63,7 +63,7 @@ export class StoryService {
         id: id
       }
     });
-    this.client.emit('story.getted', res)
+    // this.client.emit('story.getted', res)
 
     return res
   }
@@ -78,7 +78,7 @@ export class StoryService {
       }
     });
     if(res) {
-      this.client.emit('story.updated', res)
+      // this.client.emit('story.updated', res)
     }
 
     return res
@@ -91,7 +91,7 @@ export class StoryService {
       }
     });
     if(res) {
-      this.client.emit('story.deleted', res)
+      // this.client.emit('story.deleted', res)
     }
     return res
   }

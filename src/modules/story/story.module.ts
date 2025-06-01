@@ -5,11 +5,12 @@ import { PrismaModule } from '../../config/database/prisma/prisma.module';
 import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
 import { CreateStoryPipe } from '../../pipes/create-story.pipe';
 import { StoryEventsController } from './story-events.controller';
-import { RabbitMQModule } from '../../config/rabbitMQ/rabbitMQ.module';
-import { JobModule } from '../../config/bullMQ/job.module';
+// import { RabbitMQModule } from '../../config/rabbitMQ/rabbitMQ.module';
+// import { JobModule } from '../../config/bullMQ/job.module';
 
 @Module({
-  imports: [PrismaModule, RabbitMQModule, JobModule],
+  // imports: [PrismaModule, RabbitMQModule, JobModule],
+  imports: [PrismaModule],
   controllers: [StoryController, StoryEventsController],
   providers: [
     StoryService,
