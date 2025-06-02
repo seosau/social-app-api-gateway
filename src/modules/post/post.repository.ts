@@ -145,14 +145,18 @@ export class PostRepository extends Repository<Post> {
     }
 
     async findByKeyword(keyword: string, userId: string =""){
-        const eltPosts = await this.searchService.search('posts', keyword, userId);
-        const ids = eltPosts.map(post => post.id);
-        if(ids.length === 0) return [];
-        const idsSet = new Set(ids);
-        // const posts = (await this.cacheManager.get(POST_CACHE_KEYS.ALL_POSTS)) as Post[] || [];
-        const posts = await this.findByIds(ids)
-        const filteredPost = posts.filter(post=> idsSet.has(post.id));
-        return filteredPost;
+        try {
+            const eltPosts = await this.searchService.search('posts', keyword, userId);
+            const ids = eltPosts.map(post => post.id);
+            if(ids.length === 0) return [];
+            const idsSet = new Set(ids);
+            // const posts = (await this.cacheManager.get(POST_CACHE_KEYS.ALL_POSTS)) as Post[] || [];
+            const posts = await this.findByIds(ids)
+            const filteredPost = posts.filter(post=> idsSet.has(post.id));
+            return filteredPost;            
+        } catch (err) {
+            console.error('Search error: ', err)
+        }
     }
     async softRemovePost(userId: string, post: Post) {
         const savedPost = await this.softRemove(post);
