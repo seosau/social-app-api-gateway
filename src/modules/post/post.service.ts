@@ -4,20 +4,23 @@ import { PostRepository } from './post.repository';
 import { UserRepository } from '../user/user.repository';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
+import { CloudinaryService } from '../../services/cloudinary.service';
 
 @Injectable()
 export class PostService {
   constructor(
     private readonly postRepository: PostRepository,
     private readonly userRepository: UserRepository,
+    private readonly cloudinaryService: CloudinaryService,
   ){}
 
   async create(createPostDto: CreatePostDto, image: string, userId: string) {
     const user = await this.userRepository.findById(userId);
 
     if(!user) throw new NotFoundException('User not found!');
+    const imageUrl = await this.cloudinaryService.imageUpload(image)
 
-    const post = await this.postRepository.createPost(createPostDto, image, user);
+    const post = await this.postRepository.createPost(createPostDto, imageUrl, user);
 
     if(!post) {
       throw new InternalServerErrorException('Create post failed!');
@@ -106,7 +109,8 @@ export class PostService {
     } else if (user.id !== post.user.id) {
       throw new ForbiddenException('You are not allow to update this post')
     }
-    Object.assign(post,{...updatePostDto, image: image});
+    const imageUrl = await this.cloudinaryService.imageUpload(image);
+    Object.assign(post,{...updatePostDto, image: imageUrl});
 
     const savedPost = await this.postRepository.savePost(user.id, post);
     if(!savedPost) {
