@@ -6,7 +6,7 @@ import { LoggingInterceptor } from '../../interceptors/logging.interceptor';
 import { CreateStoryPipe } from '../../pipes/create-story.pipe';
 import { RateLimitGuard } from '../../guards/ratelimit.guard';
 import { SkipThrottle } from '@nestjs/throttler';
-// import { JobQueue } from '../../config/bullMQ/job.queue';
+import { JobQueue } from '../../config/bullMQ/job.queue';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { ImageUploadDto } from './dto/image-upload.dto';
@@ -17,7 +17,7 @@ import { diskStorage } from 'multer';
 export class StoryController {
   constructor(
     private readonly storyService: StoryService,
-    // private readonly jobQueue: JobQueue
+    private readonly jobQueue: JobQueue
   ) {}
 
   @Post()
@@ -31,13 +31,14 @@ export class StoryController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateStoryDto })
   create(@Body() data: CreateStoryDto, @UploadedFile() file: Express.Multer.File) {
-    // const outputPath = `./upload/resized_${file.path}`
-    // this.jobQueue.addResizeJob({
-    //   filePath: file.path,
-    //   width: 500,
-    //   height: 500,
-    //   outputPath
-    // });
+    console.log('create story================================')
+    const outputPath = `./upload/resized_${file.path}`
+    this.jobQueue.addResizeJob({
+      filePath: file.path,
+      width: 500,
+      height: 500,
+      outputPath
+    });
     return this.storyService.create(data);
   }
 
