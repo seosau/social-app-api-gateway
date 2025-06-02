@@ -33,11 +33,16 @@ export class UserRepository extends Repository<User> {
     }
 
     async findByEmail(email: string) {
-        return this.findOne({
-            where: {
-                email: email
-            }
-        })
+        try{
+            const user = await this.findOne({
+                where: {
+                    email: email
+                }
+            })
+            return user
+        } catch(err){
+            console.error(err)
+        }
     }
 
     async findByEmailAndPassword(email: string, password: string) {

@@ -30,8 +30,10 @@ export class AuthController {
 
     response.cookie('access_token', access_token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production'? 'none' : 'lax',
+      // secure: process.env.NODE_ENV === 'production',
+      // sameSite: process.env.NODE_ENV === 'production'? 'none' : 'lax',
+      secure: false,
+      sameSite: 'lax',
       maxAge: 3600000, // 1 giờ
     });
 

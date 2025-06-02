@@ -22,7 +22,6 @@ export const softDeleteMiddleware: Prisma.Middleware = async(params, next) => {
             params.args.where.deletedAt = null
         }
     }
-    console.log('===============', params)
 
     return next(params)
 }

@@ -71,7 +71,6 @@ import * as fs from 'fs';
     //         //   ttl: configService.get<number>('CACHE_TTL', 600), // seconds
     //         //   maxRetriesPerRequest: 1000000
     //         // });
-    //         console.log('=========================================================', store)
     //         break; // success
     //       } catch (err) {
     //         lastError = err;
@@ -124,7 +123,6 @@ import * as fs from 'fs';
     //       tls: {},
     //       maxRetriesPerRequest: 1000000,
     //     }
-    //     console.log('1111111111111111111111111111111111111111111111111111111', connectData)
     //     return {
     //       connection: connectData
     //     }

@@ -64,23 +64,16 @@ export class PostRepository extends Repository<Post> {
     }
 
     async createPost (createPostDto: CreatePostDto, image: string, user: User) {
-        console.log('createPostDto: ', createPostDto)
         const post = this.create({...createPostDto, image, user});
-        console.log('sau create: ')
         const savedPost = await this.save(post);
 
-        console.log('sau save: ')
         const postWithRelations = await this.findById(savedPost.id);
-        console.log('sau findById: ')
         if(!postWithRelations){
           throw new NotFoundException('Post not found');
         }
-        console.log('Sau if: ')
         const postWithUrl = addBaseURLInPost(postWithRelations);
         // await this.updateCaches(POST_UPDATE_CACHE_OPTIONS.CREATE, user.id, postWithUrl);
         await this.searchService.indexDocument(postWithUrl);
-        console.log('sauIndex: ')
-        console.log('postWithUrl: ', postWithUrl)
         return savedPost;
     }
 
