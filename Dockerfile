@@ -2,9 +2,6 @@
 FROM node:20-alpine
 # FROM node:20-slim
 
-# Cài ImageMagick
-RUN apt-get update && apt-get install -y imagemagick
-
 WORKDIR /app
 
 COPY package.json package-lock.json ./
