@@ -11,12 +11,13 @@ export class SearchService {
   async indexDocument(post: Post) {
     return this.elasticsearchService.index({
       index: 'posts',
+      type: '_doc',
       id: post.id,
-      document: {
+      body: {
         access: post.access,
         content: post.content,
         userId: post.user.id,
-        createdAt: post.createdAt
+        // createdAt: post.createdAt
       }
     });
   }
@@ -24,9 +25,10 @@ export class SearchService {
   async search(index: string, keyword: string, userId: string = "") {
     const result = await this.elasticsearchService.search({
       index,
+      type: '_doc',
       body: this.createQueryBuilder(keyword, userId),
     });
-    return result.hits.hits.map(hit => ({
+    return result.body.hits.hits.map(hit => ({
       id: hit._id,
       // ...hit._source,
     }));
@@ -35,6 +37,7 @@ export class SearchService {
   async updateDocument(post: Post) {
     return this.elasticsearchService.update({
       index: 'posts',
+      type: '_doc',
       id: post.id,
       body: {
         doc: {
@@ -50,6 +53,7 @@ export class SearchService {
   async deleteDocument(postId: string){
     return this.elasticsearchService.delete({
       index: 'posts',
+      type: '_doc',
       id: postId,
     });
   }
