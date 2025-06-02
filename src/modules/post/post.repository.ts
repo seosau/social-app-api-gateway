@@ -64,17 +64,21 @@ export class PostRepository extends Repository<Post> {
     }
 
     async createPost (createPostDto: CreatePostDto, image: string, user: User) {
-        const post = this.create({...createPostDto, image, user});
-        const savedPost = await this.save(post);
-
-        const postWithRelations = await this.findById(savedPost.id);
-        if(!postWithRelations){
-          throw new NotFoundException('Post not found');
+        try{
+            const post = this.create({...createPostDto, image, user});
+            const savedPost = await this.save(post);
+    
+            const postWithRelations = await this.findById(savedPost.id);
+            if(!postWithRelations){
+              throw new NotFoundException('Post not found');
+            }
+            const postWithUrl = addBaseURLInPost(postWithRelations);
+            // await this.updateCaches(POST_UPDATE_CACHE_OPTIONS.CREATE, user.id, postWithUrl);
+            await this.searchService.indexDocument(postWithUrl);
+            return savedPost;            
+        }catch(err) {
+            console.error('Repository error: ', err)
         }
-        const postWithUrl = addBaseURLInPost(postWithRelations);
-        // await this.updateCaches(POST_UPDATE_CACHE_OPTIONS.CREATE, user.id, postWithUrl);
-        await this.searchService.indexDocument(postWithUrl);
-        return savedPost;
     }
 
     async findAllWithRelations() {

@@ -14,8 +14,9 @@ import { SearchService } from '../services/elasticsearch.service';
         requestTimeout: 60000,
         pingTimeout: 30000,
         auth: {
-          username: config.get<string>("ELASTICSEARCH_USERNAME") || 'defaultUsername',
-          password: config.get<string>("ELASTICSEARCH_PASSWORD") || 'defaultPassword'
+          // username: config.get<string>("ELASTICSEARCH_USERNAME") || 'defaultUsername',
+          // password: config.get<string>("ELASTICSEARCH_PASSWORD") || 'defaultPassword',
+          apiKey: config.get<string>("ELASTICSEARCH_APIKEY") || '',
         },
         tls: {
           rejectUnauthorized: false,

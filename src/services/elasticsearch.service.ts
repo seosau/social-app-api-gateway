@@ -9,17 +9,21 @@ export class SearchService {
   ) {}
 
   async indexDocument(post: Post) {
-    return this.elasticsearchService.index({
-      index: 'posts',
-      type: '_doc',
-      id: post.id,
-      body: {
-        access: post.access,
-        content: post.content,
-        userId: post.user.id,
-        // createdAt: post.createdAt
-      }
-    });
+    try{
+      return this.elasticsearchService.index({
+        index: 'posts',
+        type: '_doc',
+        id: post.id,
+        body: {
+          access: post.access,
+          content: post.content,
+          userId: post.user.id,
+          // createdAt: post.createdAt
+        }
+      });      
+    }catch(err){
+      console.error(err)
+    }
   }
 
   async search(index: string, keyword: string, userId: string = "") {
