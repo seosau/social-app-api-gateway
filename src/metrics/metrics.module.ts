@@ -9,13 +9,13 @@ import { SearchService } from '../services/elasticsearch.service';
     ElasticsearchModule.registerAsync({
       imports: [ConfigModule],
       useFactory: async (config: ConfigService) => ({
-        node: config.get<string>("METRICS_HOST") || 'http://elasticity:9200',
+        node: config.get<string>("ELASTICSEARCH_NODE") || 'http://elasticity:9200',
         maxRetries: 5,
         requestTimeout: 60000,
         pingTimeout: 30000,
         auth: {
-          username: 'defaultUsername',
-          password: 'defaultPassword'
+          username: config.get<string>("ELASTICSEARCH_USERNAME") || 'defaultUsername',
+          password: config.get<string>("ELASTICSEARCH_PASSWORD") || 'defaultPassword'
         },
         tls: {
           rejectUnauthorized: false,
