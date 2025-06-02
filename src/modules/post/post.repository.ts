@@ -153,7 +153,8 @@ export class PostRepository extends Repository<Post> {
             // const posts = (await this.cacheManager.get(POST_CACHE_KEYS.ALL_POSTS)) as Post[] || [];
             const posts = await this.findByIds(ids)
             const filteredPost = posts.filter(post=> idsSet.has(post.id));
-            return filteredPost;            
+            //Delete if use cache
+            return addBaseURLInPosts(filteredPost);            
         } catch (err) {
             console.error('Search error: ', err)
         }

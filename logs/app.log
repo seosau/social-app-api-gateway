@@ -807,3 +807,32 @@
 {"level":30,"time":1748846774642,"pid":171632,"hostname":"maseosau-GF63-Thin-10SC","req":{"method":"GET","url":"/api/post/search/Test","id":3},"res":{"StatusCode":200},"responseTime":1722,"msg":"request completed"}
 {"level":30,"time":1748846847667,"pid":171632,"hostname":"maseosau-GF63-Thin-10SC","req":{"method":"GET","url":"/api/post/search/Test","id":4},"res":{"StatusCode":200},"responseTime":2047,"msg":"request completed"}
 {"level":30,"time":1748846900919,"pid":171632,"hostname":"maseosau-GF63-Thin-10SC","req":{"method":"GET","url":"/api/post/search/Test","id":5},"res":{"StatusCode":200},"responseTime":1906,"msg":"request completed"}
+{"level":40,"time":1748847240787,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"LegacyRouteConverter","msg":"Unsupported route path: \"/api/*\". In previous versions, the symbols ?, *, and + were used to denote optional or repeating path parameters. The latest version of \"path-to-regexp\" now requires the use of named parameters. For example, instead of using a route like /users/* to capture all routes starting with \"/users\", you should use /users/*path. For more details, refer to the migration guide. Attempting to auto-convert..."}
+{"level":40,"time":1748847240789,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"LegacyRouteConverter","msg":"Unsupported route path: \"/api/*\". In previous versions, the symbols ?, *, and + were used to denote optional or repeating path parameters. The latest version of \"path-to-regexp\" now requires the use of named parameters. For example, instead of using a route like /users/* to capture all routes starting with \"/users\", you should use /users/*path. For more details, refer to the migration guide. Attempting to auto-convert..."}
+{"level":40,"time":1748847240789,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"LegacyRouteConverter","msg":"Unsupported route path: \"/api/*\". In previous versions, the symbols ?, *, and + were used to denote optional or repeating path parameters. The latest version of \"path-to-regexp\" now requires the use of named parameters. For example, instead of using a route like /users/* to capture all routes starting with \"/users\", you should use /users/*path. For more details, refer to the migration guide. Attempting to auto-convert..."}
+{"level":30,"time":1748847240790,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RoutesResolver","msg":"PrometheusController {/api/metrics}:"}
+{"level":30,"time":1748847240792,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/metrics, GET} route"}
+{"level":30,"time":1748847240792,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RoutesResolver","msg":"AuthController {/api/auth}:"}
+{"level":30,"time":1748847240792,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/auth/register, POST} route"}
+{"level":30,"time":1748847240793,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/auth/login, POST} route"}
+{"level":30,"time":1748847240793,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RoutesResolver","msg":"UserController {/api/user}:"}
+{"level":30,"time":1748847240793,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/user/:id, GET} route"}
+{"level":30,"time":1748847240794,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/user, PATCH} route"}
+{"level":30,"time":1748847240794,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RoutesResolver","msg":"PostController {/api/post}:"}
+{"level":30,"time":1748847240794,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/post, POST} route"}
+{"level":30,"time":1748847240795,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/post/search/:keyword/:userId, GET} route"}
+{"level":30,"time":1748847240795,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/post/search/:keyword, GET} route"}
+{"level":30,"time":1748847240795,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/post/user/:id, GET} route"}
+{"level":30,"time":1748847240796,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/post, GET} route"}
+{"level":30,"time":1748847240796,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/post/:id/toggleLike, POST} route"}
+{"level":30,"time":1748847240796,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/post/:id, DELETE} route"}
+{"level":30,"time":1748847240796,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/post, PATCH} route"}
+{"level":30,"time":1748847240796,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RoutesResolver","msg":"StoryController {/api/story}:"}
+{"level":30,"time":1748847240797,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/story, POST} route"}
+{"level":30,"time":1748847240797,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/story, GET} route"}
+{"level":30,"time":1748847240797,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/story/:id, GET} route"}
+{"level":30,"time":1748847240797,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/story/:id, PATCH} route"}
+{"level":30,"time":1748847240797,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RouterExplorer","msg":"Mapped {/api/story/:id, DELETE} route"}
+{"level":30,"time":1748847240797,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"RoutesResolver","msg":"StoryEventsController {/api}:"}
+{"level":30,"time":1748847242215,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","context":"NestApplication","msg":"Nest application successfully started"}
+{"level":30,"time":1748847247631,"pid":174433,"hostname":"maseosau-GF63-Thin-10SC","req":{"method":"GET","url":"/api/post/search/Test","id":1},"res":{"StatusCode":200},"responseTime":2194,"msg":"request completed"}
