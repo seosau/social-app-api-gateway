@@ -100,11 +100,11 @@ export class JobProcessor implements OnModuleInit {
                 if (index > -1) {
                   // Unlike
                   post.likedBy.splice(index, 1);
-                  await this.postService.update(post.user.id, post, post.image);
+                  await this.postService.updatePostByPost(post);
                 } else {
                   // Like
                   post.likedBy.push(user);
-                  await this.postService.update(post.user.id, post as UpdatePostDto, post.image);
+                  await this.postService.updatePostByPost(post);
                 }                
                 console.log('Processed job in: ', Date.now() - ms, ' ms');
               }catch (error) {

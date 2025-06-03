@@ -179,6 +179,18 @@ export class PostService {
     return savedPost;
   }
 
+  async updatePostByPost (post: Post) {
+    if (!post) {
+      throw new NotFoundException('Post not found!');
+    }
+
+    const savedPost = await this.postRepository.savePost(post);
+    if(!savedPost) {
+      throw new Error('Update post like count failed');
+    }
+    return savedPost;
+  }
+
   async findById(postId: string) {
     const post = await this.postRepository.findById(postId)
     if(!post) throw new NotFoundException('Post not found')
