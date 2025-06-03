@@ -75,20 +75,21 @@ export class PostService {
     if (!user || !post) throw new NotFoundException('Post or user not found');
 
     await this.jobQueue.addToggleLikeJob(postId, userId)
+  // Nen xoa doan duoi nay neu dung microservice
+    const index = post.likedBy.findIndex(u => u.id === user.id);
   
-    // const index = post.likedBy.findIndex(u => u.id === user.id);
-  
-    // if (index > -1) {
-    //   // Unlike
-    //   post.likedBy.splice(index, 1);
-    //   await this.postRepository.savePost(post);
-    //   return { message: 'Post unliked' };
-    // } else {
-    //   // Like
-    //   post.likedBy.push(user);
-    //   await this.postRepository.savePost(post);
-    //   return { message: 'Post liked' };
-    // }
+    if (index > -1) {
+      // Unlike
+      post.likedBy.splice(index, 1);
+      await this.postRepository.savePost(post);
+      return { message: 'Post unliked' };
+    } else {
+      // Like
+      post.likedBy.push(user);
+      await this.postRepository.savePost(post);
+      return { message: 'Post liked' };
+    }
+    // ==============================================
   }
 
   async delete(userId: string, postId: string) {
