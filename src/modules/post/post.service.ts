@@ -4,27 +4,33 @@ import { PostRepository } from './post.repository';
 import { UserRepository } from '../user/user.repository';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
-import { CloudinaryService } from '../../services/cloudinary.service';
+import { JobQueue } from '../../config/bullMQ/job.queue';
+import { UPLOAD_IMAGE_TYPE } from '../../config/bullMQ/job.constants';
 
 @Injectable()
 export class PostService {
   constructor(
     private readonly postRepository: PostRepository,
     private readonly userRepository: UserRepository,
-    private readonly cloudinaryService: CloudinaryService,
+        private readonly jobQueue: JobQueue
   ){}
 
   async create(createPostDto: CreatePostDto, image: string, userId: string) {
     const user = await this.userRepository.findById(userId);
 
     if(!user) throw new NotFoundException('User not found!');
-    const imageUrl = await this.cloudinaryService.imageUpload(image)
 
-    const post = await this.postRepository.createPost(createPostDto, imageUrl, user);
+    const post = await this.postRepository.createPost(createPostDto, image, user);
 
     if(!post) {
       throw new InternalServerErrorException('Create post failed!');
     }
+
+    this.jobQueue.addUploadImageJob({
+      id: post.id,
+      jobType: UPLOAD_IMAGE_TYPE.POST,
+      filePath: image
+    })
 
     return post;
   }
@@ -62,12 +68,12 @@ export class PostService {
     if (index > -1) {
       // Unlike
       post.likedBy.splice(index, 1);
-      await this.postRepository.savePost(user.id, post);
+      await this.postRepository.savePost(post);
       return { message: 'Post unliked' };
     } else {
       // Like
       post.likedBy.push(user);
-      await this.postRepository.savePost(user.id, post);
+      await this.postRepository.savePost(post);
       return { message: 'Post liked' };
     }
   }
@@ -109,12 +115,32 @@ export class PostService {
     } else if (user.id !== post.user.id) {
       throw new ForbiddenException('You are not allow to update this post')
     }
-    const imageUrl = await this.cloudinaryService.imageUpload(image);
-    Object.assign(post,{...updatePostDto, image: imageUrl});
+    Object.assign(post,{...updatePostDto, image: image});
 
-    const savedPost = await this.postRepository.savePost(user.id, post);
+    const savedPost = await this.postRepository.savePost(post);
     if(!savedPost) {
       throw new Error('Update post failed');
+    }
+
+    this.jobQueue.addUploadImageJob({
+      id: savedPost.id,
+      jobType: UPLOAD_IMAGE_TYPE.POST,
+      filePath: image
+    })
+
+    return savedPost;
+  }  
+
+  async updateImageByBull (postId: string, image: string) {
+    const post = await this.postRepository.findOneWithAllRelations(postId);
+    if (!post) {
+      throw new NotFoundException('Post not found!');
+    }
+    Object.assign(post,{image: image});
+
+    const savedPost = await this.postRepository.savePost(post);
+    if(!savedPost) {
+      throw new Error('Update post image by Bull failed');
     }
     return savedPost;
   }

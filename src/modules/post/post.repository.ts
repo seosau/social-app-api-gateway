@@ -167,10 +167,10 @@ export class PostRepository extends Repository<Post> {
         return postWithUrl;
     }
  
-    async savePost(userId: string, post: Post) {
+    async savePost(post: Post) {
         const savedPost = await this.save(post);
         const postWithUrl = addBaseURLInPost(savedPost);
-        // await this.updateCaches(POST_UPDATE_CACHE_OPTIONS.UPDATE,userId, postWithUrl);
+        // await this.updateCaches(POST_UPDATE_CACHE_OPTIONS.UPDATE,post.user.id, postWithUrl);
         await this.searchService.updateDocument(savedPost)
         return postWithUrl;
     }

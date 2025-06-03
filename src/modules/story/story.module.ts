@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { StoryService } from './story.service';
 import { StoryController } from './story.controller';
 import { PrismaModule } from '../../config/database/prisma/prisma.module';
@@ -10,13 +10,13 @@ import { JobModule } from '../../config/bullMQ/job.module';
 
 @Module({
   // imports: [PrismaModule, RabbitMQModule, JobModule],
-  imports: [PrismaModule, JobModule],
+  imports: [PrismaModule, forwardRef(() => JobModule),],
   controllers: [StoryController, StoryEventsController],
   providers: [
     StoryService,
     // LoggingInterceptor,
     // CreateStoryPipe,
   ],
-  exports: [StoryModule]
+  exports: [StoryModule, StoryService]
 })
 export class StoryModule {}

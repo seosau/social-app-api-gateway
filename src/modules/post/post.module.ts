@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { forwardRef, Module } from '@nestjs/common';
 import { PostService } from './post.service';
 import { PostController } from './post.controller';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -9,13 +9,16 @@ import { UserRepository } from '../user/user.repository';
 import { MetricsModule } from '../../metrics/metrics.module';
 import { PostSearchService } from './post.searchService';
 import { CloudinaryService } from '../../services/cloudinary.service';
+import { JobModule } from '../../config/bullMQ/job.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Post, User]), // cần nếu dùng @InjectRepository
-    MetricsModule
+    MetricsModule,
+    forwardRef(() => JobModule),
   ],
   controllers: [PostController],
   providers: [PostService, PostRepository, UserRepository, PostSearchService, CloudinaryService],
+  exports: [PostModule, PostRepository, PostService]
 })
 export class PostModule {}
