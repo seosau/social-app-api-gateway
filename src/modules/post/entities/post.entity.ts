@@ -22,6 +22,9 @@ export class Post {
   @JoinTable() 
   likedBy: User[];
 
+  @Column({ nullable: true })
+  likeCount: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

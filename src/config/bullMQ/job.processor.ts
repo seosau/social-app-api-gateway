@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Worker } from "bullmq";
 import * as gm from 'gm';
-import { RESIZE_IMAGE, UPLOAD_IMAGE, UPLOAD_IMAGE_TYPE } from "./job.constants";
+import { LIKE_COUNT, RESIZE_IMAGE, UPLOAD_IMAGE, UPLOAD_IMAGE_TYPE } from "./job.constants";
 import { CloudinaryService } from "../../services/cloudinary.service";
 import { PostService } from "../../modules/post/post.service";
 import { UserService } from "../../modules/user/user.service";
@@ -14,6 +14,7 @@ const url = new URL(redisUrl);
 export class JobProcessor implements OnModuleInit {
     private resizeWorker: Worker
     private uploadImageWorker: Worker
+    private likeCountWorker: Worker
 
     constructor(
         private readonly cloudinaryService: CloudinaryService,
@@ -81,5 +82,23 @@ export class JobProcessor implements OnModuleInit {
             },
             { connection: connectionData}
           );
+          this.likeCountWorker = new Worker(
+            LIKE_COUNT,
+            async (job) => {
+              try{
+                console.log('Start Processing job: ', job.name, job.data);
+                const ms = Date.now();
+                const { postId, count } = job.data;
+                await this.postService.updateLikeCount(postId, count)
+                console.log('Processed job in: ', Date.now() - ms, ' ms');
+              }catch (error) {
+                console.error('Error processing resize job:', error)
+                throw error
+              }
+            },
+            {
+              connection: connectionData
+            }
+          )
     }
 }

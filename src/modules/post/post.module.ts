@@ -10,12 +10,14 @@ import { MetricsModule } from '../../metrics/metrics.module';
 import { PostSearchService } from './post.searchService';
 import { CloudinaryService } from '../../services/cloudinary.service';
 import { JobModule } from '../../config/bullMQ/job.module';
+import { RedisModule } from '../../config/redis/redis.module';
 
 @Module({
   imports: [
     TypeOrmModule.forFeature([Post, User]), // cần nếu dùng @InjectRepository
     MetricsModule,
     forwardRef(() => JobModule),
+    RedisModule,
   ],
   controllers: [PostController],
   providers: [PostService, PostRepository, UserRepository, PostSearchService, CloudinaryService],
