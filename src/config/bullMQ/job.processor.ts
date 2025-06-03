@@ -6,6 +6,7 @@ import { CloudinaryService } from "../../services/cloudinary.service";
 import { PostService } from "../../modules/post/post.service";
 import { UserService } from "../../modules/user/user.service";
 import { StoryService } from "../../modules/story/story.service";
+import { UpdatePostDto } from "src/modules/post/dto/update-post.dto";
 
 
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
@@ -88,8 +89,23 @@ export class JobProcessor implements OnModuleInit {
               try{
                 console.log('Start Processing job: ', job.name, job.data);
                 const ms = Date.now();
-                const { postId, count } = job.data;
+                const { postId, userId, count } = job.data;
                 await this.postService.updateLikeCount(postId, count)
+
+                //Create post_liked_by_user
+                const user = await this.userService.findOne(userId);
+                const post = await this.postService.findById(postId);
+                const index = post.likedBy.findIndex(u => u.id === userId);
+              
+                if (index > -1) {
+                  // Unlike
+                  post.likedBy.splice(index, 1);
+                  await this.postService.update(post.user.id, post, post.image);
+                } else {
+                  // Like
+                  post.likedBy.push(user);
+                  await this.postService.update(post.user.id, post as UpdatePostDto, post.image);
+                }                
                 console.log('Processed job in: ', Date.now() - ms, ' ms');
               }catch (error) {
                 console.error('Error processing resize job:', error)

@@ -76,19 +76,19 @@ export class PostService {
 
     await this.jobQueue.addToggleLikeJob(postId, userId)
   // Nen xoa doan duoi nay neu dung microservice
-    const index = post.likedBy.findIndex(u => u.id === user.id);
+    // const index = post.likedBy.findIndex(u => u.id === user.id);
   
-    if (index > -1) {
-      // Unlike
-      post.likedBy.splice(index, 1);
-      await this.postRepository.savePost(post);
-      return { message: 'Post unliked' };
-    } else {
-      // Like
-      post.likedBy.push(user);
-      await this.postRepository.savePost(post);
-      return { message: 'Post liked' };
-    }
+    // if (index > -1) {
+    //   // Unlike
+    //   post.likedBy.splice(index, 1);
+    //   await this.postRepository.savePost(post);
+    //   return { message: 'Post unliked' };
+    // } else {
+    //   // Like
+    //   post.likedBy.push(user);
+    //   await this.postRepository.savePost(post);
+    //   return { message: 'Post liked' };
+    // }
     // ==============================================
   }
 
@@ -177,5 +177,12 @@ export class PostService {
       throw new Error('Update post like count failed');
     }
     return savedPost;
+  }
+
+  async findById(postId: string) {
+    const post = await this.postRepository.findById(postId)
+    if(!post) throw new NotFoundException('Post not found')
+    
+    return post
   }
 }
