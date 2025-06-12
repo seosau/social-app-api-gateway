@@ -13,7 +13,6 @@ export class StoryEventsController {
     ){}
     @MessagePattern('story.getted')
     async handleStoryGetted(@Payload() data:any) {
-        console.log('Story get successfully: ')
         // if(isArray(data)) {
         //     await this.cacheManager.set(STORY_CACHE_KEYS.ALL_STORIES, data)
         // } else {
@@ -23,19 +22,16 @@ export class StoryEventsController {
 
     @MessagePattern('story.created')
     async handleStoryCreated(@Payload() data: any) {
-        console.log('Story created: ', data)
         // await updateCaches(STORY_UPDATE_CACHE_OPTIONS.CREATE, data.userId, data, this.cacheManager);
     }
 
     @MessagePattern('story.updated')
     async handleStoryUpdated(@Payload() data: any) {
-        console.log('Story updated: ', data)
         // await updateCaches(STORY_UPDATE_CACHE_OPTIONS.UPDATE, data.userId, data, this.cacheManager);
     }
 
     @MessagePattern('story.deleted')
     async handleStoryDeleted(@Payload() data: any) {
-        console.log('Story deleted ', data)
         // await updateCaches(STORY_UPDATE_CACHE_OPTIONS.DELETE, data.userId, data, this.cacheManager);
     }
 }

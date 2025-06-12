@@ -10,6 +10,7 @@ import Redis from 'ioredis';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { GrpcService } from '../../config/gRPC/grpc.service';
 import { GetCommentDto } from './dto/get-comment.dto';
+import { CreateNotificationRequest, NotificationType } from '../../generated/notification';
 
 @Injectable()
 export class PostService{
@@ -205,8 +206,13 @@ export class PostService{
 
   async createComment(data: CreateCommentDto) {
     try{
-      console.log('jeej')
       const res = await this.grpcService.createComment(data);
+
+      const notif = await this.grpcService.createNotification({
+        postId: data.postId,
+        userId: data.userId,
+        notifType: NotificationType.COMMENT
+      } as CreateNotificationRequest)
       
       this.jobQueue.addCommentCountJob(data.postId, "create")
       return res
@@ -217,7 +223,6 @@ export class PostService{
 
   async getComments(data: GetCommentDto) {
     try{
-      console.log('getCommetn')
       const res = await this.grpcService.getComment(data);
       const extra = await Promise.all(
         res.comments.map(async (comment) => ({
@@ -227,18 +232,11 @@ export class PostService{
       );
 
       let parentComments = extra.filter((comment) => !comment.parentId)
-      console.log(parentComments)
 
       const parentWithChilds = parentComments.map((com) => ({
         ...com,
         childs: extra.filter((comment) => comment.parentId === com.id),
       }));
-
-
-      console.log(parentWithChilds)
-      // const parentCommentsWithChilds = {
-      //   ...parentComments,
-      // }
 
       const total = extra.length
       return {parentWithChilds, total}

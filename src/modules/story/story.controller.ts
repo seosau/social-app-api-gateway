@@ -31,7 +31,6 @@ export class StoryController {
   @ApiConsumes('multipart/form-data')
   @ApiBody({ type: CreateStoryDto })
   create(@Body() data: CreateStoryDto, @UploadedFile() file: Express.Multer.File) {
-    console.log('create story================================')
     const outputPath = `./upload/resized_${file.path}`
     this.jobQueue.addResizeJob({
       filePath: file.path,

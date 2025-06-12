@@ -125,7 +125,6 @@ import { GrpcModule } from './config/gRPC/grpc.module';
           tls: {},
           maxRetriesPerRequest: 1000000,
         }
-        console.log(connectData)
         return {
           connection: connectData
         }
