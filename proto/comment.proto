@@ -1,0 +1,58 @@
+//Lenh de generate code:
+/*
+Cai package va tao thu muc
+
+npm install ts-proto --save-dev
+chmod +x ./node_modules/.bin/protoc-gen-ts_proto
+mkdir src/generated/
+
+  // Lenh moi
+npx protoc \
+  --plugin=protoc-gen-ts_proto=./node_modules/.bin/protoc-gen-ts_proto \
+  --ts_proto_out=./src/generated \
+  --ts_proto_opt=nestJs=true,outputServices=grpc-js \
+  --proto_path=./proto \
+  --experimental_allow_proto3_optional \
+  ./proto/comment.proto
+
+
+*/
+
+syntax = "proto3";
+
+package comment;
+
+service CommentService {
+    rpc GetComments (GetCommentsRequest) returns (GetCommentsResponse) {};
+    rpc CreateComment (CreateCommentRequest) returns (CreateCommentResponse) {};
+}
+
+message Comment {
+    string id = 1;
+    string postId = 2;
+    string userId = 3;
+    optional string parentId = 8;
+    string content = 4;
+    string createdAt = 5;
+    string updatedAt = 6;
+    string deletedAt = 7;
+}
+
+message GetCommentsRequest {
+    string postId = 1;
+}
+
+message GetCommentsResponse {
+    repeated Comment comments = 1;
+}
+
+message CreateCommentRequest {
+    string postId = 1;
+    string userId = 2;
+    string content = 3;
+    optional string parentId = 4;
+}
+
+message CreateCommentResponse {
+    Comment comments = 1;
+}

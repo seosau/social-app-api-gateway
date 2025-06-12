@@ -25,6 +25,9 @@ export class Post {
   @Column({ nullable: true })
   likeCount: number;
 
+  @Column({ nullable: true })
+  commentCount: number;
+
   @CreateDateColumn()
   createdAt: Date;
 

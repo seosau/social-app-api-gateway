@@ -25,12 +25,14 @@ import { MetricsMiddleware } from './Monitoring/middlewares/metrics.middleware';
 import { MonitoringModule } from './Monitoring/monitoring.module';
 import { LoggerModule } from 'nestjs-pino';
 import * as fs from 'fs';
+import { GrpcModule } from './config/gRPC/grpc.module';
+// import { ClientsModule, Transport } from '@nestjs/microservices';
 
  
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
+      isGlobal: true, 
     }),
     ThrottlerModule.forRootAsync(throttlerConfig),
     TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
@@ -156,6 +158,18 @@ import * as fs from 'fs';
         }
       },
     }),
+    // ClientsModule.register([
+    //   {
+    //     name: 'COMMENT_SERVICE',
+    //     transport: Transport.GRPC,
+    //     options: {
+    //       url: '0.0.0.0:50051',
+    //       package: 'comment',
+    //       protoPath: join(__dirname, '../proto/comment.proto'),
+    //     }
+    //   }
+    // ]),
+    GrpcModule,
     PrometheusModule.register(),
     PrismaModule,
     AuthModule,

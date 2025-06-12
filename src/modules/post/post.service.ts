@@ -5,17 +5,22 @@ import { UserRepository } from '../user/user.repository';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { Post } from './entities/post.entity';
 import { JobQueue } from '../../config/bullMQ/job.queue';
-import { UPLOAD_IMAGE_TYPE } from '../../config/bullMQ/job.constants';
+import { COMMENT_COUNT_TYPE, UPLOAD_IMAGE_TYPE } from '../../config/bullMQ/job.constants';
 import Redis from 'ioredis';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { GrpcService } from '../../config/gRPC/grpc.service';
+import { GetCommentDto } from './dto/get-comment.dto';
 
 @Injectable()
-export class PostService {
+export class PostService{
+  
   constructor(
     private readonly postRepository: PostRepository,
     private readonly userRepository: UserRepository,
     private readonly jobQueue: JobQueue,
     @Inject('REDIS_CLIENT')
     private readonly redis: Redis,
+    private readonly grpcService: GrpcService,
   ){}
 
   async create(createPostDto: CreatePostDto, image: string, userId: string) {
@@ -196,5 +201,49 @@ export class PostService {
     if(!post) throw new NotFoundException('Post not found')
     
     return post
+  }
+
+  async createComment(data: CreateCommentDto) {
+    try{
+      console.log('jeej')
+      const res = await this.grpcService.createComment(data);
+      
+      this.jobQueue.addCommentCountJob(data.postId, "create")
+      return res
+    } catch (err) {
+      console.error(err)
+    }
+  }
+
+  async getComments(data: GetCommentDto) {
+    try{
+      console.log('getCommetn')
+      const res = await this.grpcService.getComment(data);
+      const extra = await Promise.all(
+        res.comments.map(async (comment) => ({
+          ...comment,
+          user: await this.userRepository.findById(comment.userId),
+        }))
+      );
+
+      let parentComments = extra.filter((comment) => !comment.parentId)
+      console.log(parentComments)
+
+      const parentWithChilds = parentComments.map((com) => ({
+        ...com,
+        childs: extra.filter((comment) => comment.parentId === com.id),
+      }));
+
+
+      console.log(parentWithChilds)
+      // const parentCommentsWithChilds = {
+      //   ...parentComments,
+      // }
+
+      const total = extra.length
+      return {parentWithChilds, total}
+    } catch (err) {
+      console.error(err)
+    }
   }
 }

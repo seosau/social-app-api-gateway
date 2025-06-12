@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit } from "@nestjs/common";
 import { Worker } from "bullmq";
 import * as gm from 'gm';
-import { LIKE_COUNT, RESIZE_IMAGE, UPLOAD_IMAGE, UPLOAD_IMAGE_TYPE } from "./job.constants";
+import { COMMENT_COUNT, COMMENT_COUNT_TYPE, LIKE_COUNT, RESIZE_IMAGE, UPLOAD_IMAGE, UPLOAD_IMAGE_TYPE } from "./job.constants";
 import { CloudinaryService } from "../../services/cloudinary.service";
 import { PostService } from "../../modules/post/post.service";
 import { UserService } from "../../modules/user/user.service";
@@ -16,6 +16,7 @@ export class JobProcessor implements OnModuleInit {
     private resizeWorker: Worker
     private uploadImageWorker: Worker
     private likeCountWorker: Worker
+    private commentCountWoker: Worker
 
     constructor(
         private readonly cloudinaryService: CloudinaryService,
@@ -108,8 +109,34 @@ export class JobProcessor implements OnModuleInit {
                 }                
                 console.log('Processed job in: ', Date.now() - ms, ' ms');
               }catch (error) {
-                console.error('Error processing resize job:', error)
+                console.error('Error processing count like job: ', error)
                 throw error
+              }
+            },
+            {
+              connection: connectionData
+            }
+          );
+
+          this.commentCountWoker = new Worker(
+            COMMENT_COUNT,
+            async (job) => {
+              try{
+                console.log('Start Processing job: ', job.name, job.data);
+                const ms = Date.now()
+                const {postId, type} = job.data
+
+                const post = await this.postService.findById(postId)
+                if(type === COMMENT_COUNT_TYPE.CREATE)
+                  post.commentCount ++
+                if(type === COMMENT_COUNT_TYPE.DELETE)
+                  post.commentCount --
+
+                await this.postService.updatePostByPost(post)
+
+                console.log('Processed job in: ', Date.now() - ms, ' ms');
+              } catch(err) {
+                console.error('Error processing count comment job: ', err)
               }
             },
             {

@@ -6,6 +6,8 @@ import { extname } from 'path';
 import { diskStorage } from 'multer';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { AuthGuard } from '../../guards/auth.guard';
+import { CreateCommentDto } from './dto/create-comment.dto';
+import { GetCommentDto } from './dto/get-comment.dto';
 
 @Controller('post')
 export class PostController {
@@ -92,5 +94,22 @@ export class PostController {
     const userId = req['user'].sub;
     const image = file.filename;
     return this.postService.update(userId, updatePostDto, image);
+  }
+
+  @UseGuards(AuthGuard)
+  @Post('comment')
+  async createComment(
+    @Req() req: Request,
+    @Body() data: CreateCommentDto,
+  ) {
+    const userId = req['user'].sub;
+    return this.postService.createComment({...data, userId} as CreateCommentDto)
+  }
+
+  @Get('comments/:postId')
+  async getComments(
+    @Param('postId') postId: string
+  ) {
+    return this.postService.getComments({postId} as GetCommentDto)
   }
 }

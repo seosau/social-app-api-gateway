@@ -11,6 +11,7 @@ import { PostSearchService } from './post.searchService';
 import { CloudinaryService } from '../../services/cloudinary.service';
 import { JobModule } from '../../config/bullMQ/job.module';
 import { RedisModule } from '../../config/redis/redis.module';
+// import { CommentGrpcClientProvider } from '../../config/gRPC/comment.client';
 
 @Module({
   imports: [
@@ -20,7 +21,14 @@ import { RedisModule } from '../../config/redis/redis.module';
     RedisModule,
   ],
   controllers: [PostController],
-  providers: [PostService, PostRepository, UserRepository, PostSearchService, CloudinaryService],
+  providers: [
+    PostService, 
+    PostRepository, 
+    UserRepository, 
+    PostSearchService, 
+    CloudinaryService, 
+    // CommentGrpcClientProvider
+  ],
   exports: [PostModule, PostRepository, PostService]
 })
 export class PostModule {}
