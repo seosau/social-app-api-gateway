@@ -119,10 +119,16 @@ export class PostRepository extends Repository<Post> {
     }
 
     async findById(id: string) {
-        return this.findOne({
+        const result = await this.findOne({
             where: {id: id},
             relations: ['user','likedBy'],
         })
+
+        if(!result) {
+            throw new NotFoundException('Post not found!')
+        }
+
+        return addBaseURLInPost(result)
     }
 
     async findByIds(ids: (string | undefined)[]) {

@@ -10,6 +10,15 @@ import { AuthGuard } from '../../guards/auth.guard';
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
+  @UseGuards(AuthGuard)
+  @Get('notifications')
+  async getNotifications(
+    @Req() req: Request
+  ) {
+    const userId = req['user'].sub;
+    return this.userService.getNotifications(userId);
+  }
+
   @Get(':id')
   async findOne(@Param('id') userId: string) {
     return this.userService.findOne(userId);

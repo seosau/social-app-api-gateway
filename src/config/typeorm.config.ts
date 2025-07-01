@@ -16,8 +16,10 @@ export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
     synchronize: true,
     // synchronize: configService.get('NODE_ENV') === 'development',
     autoLoadEntities: true,
-    ssl: {
-      rejectUnauthorized: false,
-    }    
+
+    //Bo comment neu deploy
+    // ssl: {
+    //   rejectUnauthorized: false,
+    // }    
   }),
 };

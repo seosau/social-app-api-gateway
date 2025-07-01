@@ -5,12 +5,15 @@ import { addBaseURLInUser } from '../../utils/addBaseURLInUser';
 import { JobQueue } from '../../config/bullMQ/job.queue';
 import { UPLOAD_IMAGE_TYPE } from '../../config/bullMQ/job.constants';
 import * as bcrypt from 'bcrypt';
+import { GrpcService } from '../../config/gRPC/grpc.service';
+import { GetNotificationsRequest } from '../../generated/notification';
 
 @Injectable()
 export class UserService {
   constructor(
     private readonly userRepository: UserRepository,
     private readonly jobQueue: JobQueue,
+    private readonly grpcService: GrpcService,
   ) {}
 
   async findOne(id: string) {
@@ -50,6 +53,8 @@ export class UserService {
       filePath: updateUserDto.image
     })
 
+    this.jobQueue.updateNotif(savedUser);
+
     return savedUser;
   }
 
@@ -64,6 +69,11 @@ export class UserService {
     if(!savedUser) {
       throw new Error('Update user image by Bull failed');
     }
+    this.jobQueue.updateNotif(savedUser);
     return savedUser;
+  }
+
+  async getNotifications(userId: string) {
+    return this.grpcService.getNotifications({userId} as GetNotificationsRequest)
   }
 }

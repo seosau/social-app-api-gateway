@@ -4,7 +4,7 @@ import { lastValueFrom } from "rxjs";
 import { COMMENT_SERVICE_NAME, CommentServiceClient } from "../../generated/comment";
 import { CreateCommentDto } from "../../modules/post/dto/create-comment.dto";
 import { GetCommentDto } from "src/modules/post/dto/get-comment.dto";
-import { CreateNotificationRequest, GetNotificationsRequest, NOTIFICATION_SERVICE_NAME, NotificationServiceClient } from "../../generated/notification";
+import { CreateNotificationRequest, DeleteNotificationsRequest, GetNotificationsRequest, MarkAsReadNotificationRequest, MarkAsReadNotificationsRequest, NOTIFICATION_SERVICE_NAME, NotificationServiceClient } from "../../generated/notification";
 
 @Injectable()
 export class GrpcService {
@@ -54,14 +54,53 @@ export class GrpcService {
         }
     }
 
-    async getotifications (data: GetNotificationsRequest) {
+    async getNotifications (data: GetNotificationsRequest) {
         try{
             const res = this.notifService.getNotifications(data)
             const result = await lastValueFrom(res)
 
             return result.notifications
         } catch (err) {
-            console.error('Backend Create Notification Error: ', err)
+            console.error('Backend Get Notification Error: ', err)
+            throw err
+        }
+    }
+
+    async deleteNotification (data: DeleteNotificationsRequest) {
+        try{
+            const res = this.notifService.deleteNotification(data)
+            const result = await lastValueFrom(res)
+            return result.notifications
+
+            // return result.notifications
+        } catch (err) {
+            console.error('Backend Delete Notification Error: ', err)
+            throw err
+        }
+    }
+
+    async markAsReadNotification (data: MarkAsReadNotificationRequest) {
+        try{
+            const res = this.notifService.markAsReadNotification(data)
+            const result = await lastValueFrom(res)
+            return result
+
+            // return result.notifications
+        } catch (err) {
+            console.error('Backend Mark As Read Notification Error: ', err)
+            throw err
+        }
+    }
+
+    async markAsReadNotifications (data: MarkAsReadNotificationsRequest) {
+        try{
+            const res = this.notifService.markAsReadNotifications(data)
+            const result = await lastValueFrom(res)
+            return result
+
+            // return result.notifications
+        } catch (err) {
+            console.error('Backend Mark As Read Notifications Error: ', err)
             throw err
         }
     }

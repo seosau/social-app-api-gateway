@@ -10,7 +10,9 @@ import Redis from 'ioredis';
 import { CreateCommentDto } from './dto/create-comment.dto';
 import { GrpcService } from '../../config/gRPC/grpc.service';
 import { GetCommentDto } from './dto/get-comment.dto';
-import { CreateNotificationRequest, NotificationType } from '../../generated/notification';
+import { CreateNotificationRequest } from '../../generated/notification';
+import { NotificationType } from '../../generated/notification_enum';
+import { generateNotifMessage } from '../../utils';
 
 @Injectable()
 export class PostService{
@@ -208,11 +210,18 @@ export class PostService{
     try{
       const res = await this.grpcService.createComment(data);
 
-      const notif = await this.grpcService.createNotification({
-        postId: data.postId,
-        userId: data.userId,
-        notifType: NotificationType.COMMENT
-      } as CreateNotificationRequest)
+      const user = await this.userRepository.findById(data.userId)
+      const post = await this.postRepository.findById(data.postId)
+      if(!!post?.user.id && data.userId !== post.user.id) {
+        const notif = await this.grpcService.createNotification({
+          postId: data.postId,
+          creatorId: data.userId,
+          creatorAvtUrl: user?.image || '',
+          receiverId: post?.user.id,
+          notifType: NotificationType.COMMENT,
+          message: generateNotifMessage(NotificationType.COMMENT, user?.fullName || 'Someone')
+        } as CreateNotificationRequest)
+      }
       
       this.jobQueue.addCommentCountJob(data.postId, "create")
       return res

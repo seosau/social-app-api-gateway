@@ -34,7 +34,7 @@ export class AuthController {
       // sameSite: process.env.NODE_ENV === 'production'? 'none' : 'lax',
       secure: false,
       sameSite: 'lax',
-      maxAge: 3600000, // 1 giờ
+      maxAge: 3600000*24, // 1 ngay
     });
 
     return {user};

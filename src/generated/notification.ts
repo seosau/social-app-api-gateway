@@ -9,22 +9,19 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import type { handleUnaryCall, UntypedServiceImplementation } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
+import { NotificationType } from "./notification_enum";
 
 export const protobufPackage = "notification";
-
-export enum NotificationType {
-  NOTIFICATION_TYPE_UNSPECIFIED = 0,
-  LIKE = 1,
-  COMMENT = 2,
-  SHARE = 3,
-  UNRECOGNIZED = -1,
-}
 
 export interface Notification {
   id: string;
   postId: string;
-  userId: string;
+  creatorId: string;
+  creatorAvtUrl: string;
+  receiverId: string;
   notifType: NotificationType;
+  message: string;
+  isRead: boolean;
   createdAt: string;
   deletedAt: string;
 }
@@ -39,18 +36,56 @@ export interface GetNotificationsResponse {
 
 export interface CreateNotificationRequest {
   postId: string;
-  userId: string;
+  creatorId: string;
+  creatorAvtUrl: string;
+  receiverId: string;
   notifType: NotificationType;
+  message: string;
 }
 
 export interface CreateNotificationResponse {
   notifications: Notification | undefined;
 }
 
+export interface DeleteNotificationsRequest {
+  id: string;
+}
+
+export interface DeleteNotificationsResponse {
+  notifications: Notification | undefined;
+}
+
+export interface MarkAsReadNotificationRequest {
+  id: string;
+}
+
+export interface MarkAsReadotificationResponse {
+  notification: Notification | undefined;
+}
+
+export interface MarkAsReadNotificationsRequest {
+  ids: string[];
+}
+
+export interface MarkAsReadotificationsResponse {
+  notifications: Notification[];
+}
+
 export const NOTIFICATION_PACKAGE_NAME = "notification";
 
 function createBaseNotification(): Notification {
-  return { id: "", postId: "", userId: "", notifType: 0, createdAt: "", deletedAt: "" };
+  return {
+    id: "",
+    postId: "",
+    creatorId: "",
+    creatorAvtUrl: "",
+    receiverId: "",
+    notifType: 0,
+    message: "",
+    isRead: false,
+    createdAt: "",
+    deletedAt: "",
+  };
 }
 
 export const Notification: MessageFns<Notification> = {
@@ -61,17 +96,29 @@ export const Notification: MessageFns<Notification> = {
     if (message.postId !== "") {
       writer.uint32(18).string(message.postId);
     }
-    if (message.userId !== "") {
-      writer.uint32(26).string(message.userId);
+    if (message.creatorId !== "") {
+      writer.uint32(26).string(message.creatorId);
+    }
+    if (message.creatorAvtUrl !== "") {
+      writer.uint32(34).string(message.creatorAvtUrl);
+    }
+    if (message.receiverId !== "") {
+      writer.uint32(42).string(message.receiverId);
     }
     if (message.notifType !== 0) {
-      writer.uint32(32).int32(message.notifType);
+      writer.uint32(48).int32(message.notifType);
+    }
+    if (message.message !== "") {
+      writer.uint32(58).string(message.message);
+    }
+    if (message.isRead !== false) {
+      writer.uint32(64).bool(message.isRead);
     }
     if (message.createdAt !== "") {
-      writer.uint32(42).string(message.createdAt);
+      writer.uint32(74).string(message.createdAt);
     }
     if (message.deletedAt !== "") {
-      writer.uint32(58).string(message.deletedAt);
+      writer.uint32(82).string(message.deletedAt);
     }
     return writer;
   },
@@ -104,15 +151,15 @@ export const Notification: MessageFns<Notification> = {
             break;
           }
 
-          message.userId = reader.string();
+          message.creatorId = reader.string();
           continue;
         }
         case 4: {
-          if (tag !== 32) {
+          if (tag !== 34) {
             break;
           }
 
-          message.notifType = reader.int32() as any;
+          message.creatorAvtUrl = reader.string();
           continue;
         }
         case 5: {
@@ -120,11 +167,43 @@ export const Notification: MessageFns<Notification> = {
             break;
           }
 
-          message.createdAt = reader.string();
+          message.receiverId = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
+            break;
+          }
+
+          message.notifType = reader.int32() as any;
           continue;
         }
         case 7: {
           if (tag !== 58) {
+            break;
+          }
+
+          message.message = reader.string();
+          continue;
+        }
+        case 8: {
+          if (tag !== 64) {
+            break;
+          }
+
+          message.isRead = reader.bool();
+          continue;
+        }
+        case 9: {
+          if (tag !== 74) {
+            break;
+          }
+
+          message.createdAt = reader.string();
+          continue;
+        }
+        case 10: {
+          if (tag !== 82) {
             break;
           }
 
@@ -216,19 +295,28 @@ export const GetNotificationsResponse: MessageFns<GetNotificationsResponse> = {
 };
 
 function createBaseCreateNotificationRequest(): CreateNotificationRequest {
-  return { postId: "", userId: "", notifType: 0 };
+  return { postId: "", creatorId: "", creatorAvtUrl: "", receiverId: "", notifType: 0, message: "" };
 }
 
 export const CreateNotificationRequest: MessageFns<CreateNotificationRequest> = {
   encode(message: CreateNotificationRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
     if (message.postId !== "") {
-      writer.uint32(10).string(message.postId);
+      writer.uint32(18).string(message.postId);
     }
-    if (message.userId !== "") {
-      writer.uint32(18).string(message.userId);
+    if (message.creatorId !== "") {
+      writer.uint32(26).string(message.creatorId);
+    }
+    if (message.creatorAvtUrl !== "") {
+      writer.uint32(34).string(message.creatorAvtUrl);
+    }
+    if (message.receiverId !== "") {
+      writer.uint32(42).string(message.receiverId);
     }
     if (message.notifType !== 0) {
-      writer.uint32(24).int32(message.notifType);
+      writer.uint32(48).int32(message.notifType);
+    }
+    if (message.message !== "") {
+      writer.uint32(58).string(message.message);
     }
     return writer;
   },
@@ -240,28 +328,52 @@ export const CreateNotificationRequest: MessageFns<CreateNotificationRequest> = 
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
-        case 1: {
-          if (tag !== 10) {
+        case 2: {
+          if (tag !== 18) {
             break;
           }
 
           message.postId = reader.string();
           continue;
         }
-        case 2: {
-          if (tag !== 18) {
+        case 3: {
+          if (tag !== 26) {
             break;
           }
 
-          message.userId = reader.string();
+          message.creatorId = reader.string();
           continue;
         }
-        case 3: {
-          if (tag !== 24) {
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.creatorAvtUrl = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.receiverId = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 48) {
             break;
           }
 
           message.notifType = reader.int32() as any;
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.message = reader.string();
           continue;
         }
       }
@@ -311,10 +423,238 @@ export const CreateNotificationResponse: MessageFns<CreateNotificationResponse> 
   },
 };
 
+function createBaseDeleteNotificationsRequest(): DeleteNotificationsRequest {
+  return { id: "" };
+}
+
+export const DeleteNotificationsRequest: MessageFns<DeleteNotificationsRequest> = {
+  encode(message: DeleteNotificationsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteNotificationsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteNotificationsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseDeleteNotificationsResponse(): DeleteNotificationsResponse {
+  return { notifications: undefined };
+}
+
+export const DeleteNotificationsResponse: MessageFns<DeleteNotificationsResponse> = {
+  encode(message: DeleteNotificationsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.notifications !== undefined) {
+      Notification.encode(message.notifications, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): DeleteNotificationsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseDeleteNotificationsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.notifications = Notification.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseMarkAsReadNotificationRequest(): MarkAsReadNotificationRequest {
+  return { id: "" };
+}
+
+export const MarkAsReadNotificationRequest: MessageFns<MarkAsReadNotificationRequest> = {
+  encode(message: MarkAsReadNotificationRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MarkAsReadNotificationRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMarkAsReadNotificationRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseMarkAsReadotificationResponse(): MarkAsReadotificationResponse {
+  return { notification: undefined };
+}
+
+export const MarkAsReadotificationResponse: MessageFns<MarkAsReadotificationResponse> = {
+  encode(message: MarkAsReadotificationResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.notification !== undefined) {
+      Notification.encode(message.notification, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MarkAsReadotificationResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMarkAsReadotificationResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.notification = Notification.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseMarkAsReadNotificationsRequest(): MarkAsReadNotificationsRequest {
+  return { ids: [] };
+}
+
+export const MarkAsReadNotificationsRequest: MessageFns<MarkAsReadNotificationsRequest> = {
+  encode(message: MarkAsReadNotificationsRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.ids) {
+      writer.uint32(10).string(v!);
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MarkAsReadNotificationsRequest {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMarkAsReadNotificationsRequest();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.ids.push(reader.string());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseMarkAsReadotificationsResponse(): MarkAsReadotificationsResponse {
+  return { notifications: [] };
+}
+
+export const MarkAsReadotificationsResponse: MessageFns<MarkAsReadotificationsResponse> = {
+  encode(message: MarkAsReadotificationsResponse, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.notifications) {
+      Notification.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): MarkAsReadotificationsResponse {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseMarkAsReadotificationsResponse();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.notifications.push(Notification.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
 export interface NotificationServiceClient {
   getNotifications(request: GetNotificationsRequest): Observable<GetNotificationsResponse>;
 
   createNotification(request: CreateNotificationRequest): Observable<CreateNotificationResponse>;
+
+  deleteNotification(request: DeleteNotificationsRequest): Observable<DeleteNotificationsResponse>;
+
+  markAsReadNotification(request: MarkAsReadNotificationRequest): Observable<MarkAsReadotificationResponse>;
+
+  markAsReadNotifications(request: MarkAsReadNotificationsRequest): Observable<MarkAsReadotificationsResponse>;
 }
 
 export interface NotificationServiceController {
@@ -325,11 +665,32 @@ export interface NotificationServiceController {
   createNotification(
     request: CreateNotificationRequest,
   ): Promise<CreateNotificationResponse> | Observable<CreateNotificationResponse> | CreateNotificationResponse;
+
+  deleteNotification(
+    request: DeleteNotificationsRequest,
+  ): Promise<DeleteNotificationsResponse> | Observable<DeleteNotificationsResponse> | DeleteNotificationsResponse;
+
+  markAsReadNotification(
+    request: MarkAsReadNotificationRequest,
+  ): Promise<MarkAsReadotificationResponse> | Observable<MarkAsReadotificationResponse> | MarkAsReadotificationResponse;
+
+  markAsReadNotifications(
+    request: MarkAsReadNotificationsRequest,
+  ):
+    | Promise<MarkAsReadotificationsResponse>
+    | Observable<MarkAsReadotificationsResponse>
+    | MarkAsReadotificationsResponse;
 }
 
 export function NotificationServiceControllerMethods() {
   return function (constructor: Function) {
-    const grpcMethods: string[] = ["getNotifications", "createNotification"];
+    const grpcMethods: string[] = [
+      "getNotifications",
+      "createNotification",
+      "deleteNotification",
+      "markAsReadNotification",
+      "markAsReadNotifications",
+    ];
     for (const method of grpcMethods) {
       const descriptor: any = Reflect.getOwnPropertyDescriptor(constructor.prototype, method);
       GrpcMethod("NotificationService", method)(constructor.prototype[method], method, descriptor);
@@ -367,11 +728,47 @@ export const NotificationServiceService = {
       Buffer.from(CreateNotificationResponse.encode(value).finish()),
     responseDeserialize: (value: Buffer) => CreateNotificationResponse.decode(value),
   },
+  deleteNotification: {
+    path: "/notification.NotificationService/DeleteNotification",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: DeleteNotificationsRequest) =>
+      Buffer.from(DeleteNotificationsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => DeleteNotificationsRequest.decode(value),
+    responseSerialize: (value: DeleteNotificationsResponse) =>
+      Buffer.from(DeleteNotificationsResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => DeleteNotificationsResponse.decode(value),
+  },
+  markAsReadNotification: {
+    path: "/notification.NotificationService/MarkAsReadNotification",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: MarkAsReadNotificationRequest) =>
+      Buffer.from(MarkAsReadNotificationRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => MarkAsReadNotificationRequest.decode(value),
+    responseSerialize: (value: MarkAsReadotificationResponse) =>
+      Buffer.from(MarkAsReadotificationResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => MarkAsReadotificationResponse.decode(value),
+  },
+  markAsReadNotifications: {
+    path: "/notification.NotificationService/MarkAsReadNotifications",
+    requestStream: false,
+    responseStream: false,
+    requestSerialize: (value: MarkAsReadNotificationsRequest) =>
+      Buffer.from(MarkAsReadNotificationsRequest.encode(value).finish()),
+    requestDeserialize: (value: Buffer) => MarkAsReadNotificationsRequest.decode(value),
+    responseSerialize: (value: MarkAsReadotificationsResponse) =>
+      Buffer.from(MarkAsReadotificationsResponse.encode(value).finish()),
+    responseDeserialize: (value: Buffer) => MarkAsReadotificationsResponse.decode(value),
+  },
 } as const;
 
 export interface NotificationServiceServer extends UntypedServiceImplementation {
   getNotifications: handleUnaryCall<GetNotificationsRequest, GetNotificationsResponse>;
   createNotification: handleUnaryCall<CreateNotificationRequest, CreateNotificationResponse>;
+  deleteNotification: handleUnaryCall<DeleteNotificationsRequest, DeleteNotificationsResponse>;
+  markAsReadNotification: handleUnaryCall<MarkAsReadNotificationRequest, MarkAsReadotificationResponse>;
+  markAsReadNotifications: handleUnaryCall<MarkAsReadNotificationsRequest, MarkAsReadotificationsResponse>;
 }
 
 export interface MessageFns<T> {

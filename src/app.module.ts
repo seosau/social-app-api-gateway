@@ -27,6 +27,7 @@ import { LoggerModule } from 'nestjs-pino';
 import * as fs from 'fs';
 import { GrpcModule } from './config/gRPC/grpc.module';
 // import { ClientsModule, Transport } from '@nestjs/microservices';
+import { NotificationModule } from './modules/notification/notification.module';
 
  
 @Module({
@@ -105,7 +106,7 @@ import { GrpcModule } from './config/gRPC/grpc.module';
       inject: [ConfigService],
       useFactory: async (configService: ConfigService) => ({
         secret: configService.get<string>('JWT_SECRET'),
-        signOptions: { expiresIn: '1h' },
+        signOptions: { expiresIn: '1 days' },
       }),
     }),
     // BullModule.forRoot({
@@ -176,7 +177,8 @@ import { GrpcModule } from './config/gRPC/grpc.module';
     PostModule,
     StoryModule,
     // RabbitMQModule,
-    MonitoringModule
+    MonitoringModule,
+    NotificationModule
   ],
   controllers: [],
   providers: [

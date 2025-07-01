@@ -1,6 +1,7 @@
 import { Injectable } from "@nestjs/common";
 import { Queue } from "bullmq";
-import { COMMENT_COUNT, COMMENT_COUNT_TYPE_ARGUMENT, RESIZE_IMAGE, TOGGLE_LIKE, UPLOAD_IMAGE } from "./job.constants";
+import { COMMENT_COUNT, COMMENT_COUNT_TYPE_ARGUMENT, NOTIF_QUEUE_NAME, RESIZE_IMAGE, TOGGLE_LIKE, UPDATE_NOTIF_BY_USER, UPLOAD_IMAGE } from "./job.constants";
+import { User } from "src/modules/user/entities/user.entity";
 
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
 const url = new URL(redisUrl);
@@ -11,6 +12,7 @@ export class JobQueue {
     public readonly uploadImageQueue: Queue
     public readonly toggleLikeQueue: Queue
     public readonly commentCountQueue: Queue
+    public readonly updateNotifQueue: Queue
 
     constructor() {
         const connectionData = {
@@ -33,6 +35,9 @@ export class JobQueue {
         this.commentCountQueue = new Queue(COMMENT_COUNT, {
             connection: connectionData
         })
+        this.updateNotifQueue = new Queue(NOTIF_QUEUE_NAME, {
+            connection: connectionData
+        })
     }
 
     async addResizeJob(data: any) {
@@ -48,5 +53,9 @@ export class JobQueue {
     }
     async addCommentCountJob(postId: string, type: COMMENT_COUNT_TYPE_ARGUMENT) {
         await this.commentCountQueue.add(COMMENT_COUNT, {postId, type})
+    }
+
+    async updateNotif(user: User) {
+        await this.updateNotifQueue.add(UPDATE_NOTIF_BY_USER, user)
     }
 }

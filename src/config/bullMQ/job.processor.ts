@@ -7,6 +7,11 @@ import { PostService } from "../../modules/post/post.service";
 import { UserService } from "../../modules/user/user.service";
 import { StoryService } from "../../modules/story/story.service";
 import { UpdatePostDto } from "src/modules/post/dto/update-post.dto";
+import { GrpcService } from "../gRPC/grpc.service";
+import { CreateNotificationRequest } from "../../generated/notification";
+import { NotificationType } from "../../generated/notification_enum";
+import { generateNotifMessage } from "../../utils";
+import { JobQueue } from "./job.queue";
 
 
 const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
@@ -22,7 +27,9 @@ export class JobProcessor implements OnModuleInit {
         private readonly cloudinaryService: CloudinaryService,
         private readonly postService: PostService,
         private readonly userService: UserService,
-        private readonly storyService: StoryService
+        private readonly storyService: StoryService,
+        private readonly grpcService: GrpcService,
+        private readonly jobQueue: JobQueue,
     ) {}
 
     onModuleInit() {
@@ -88,7 +95,7 @@ export class JobProcessor implements OnModuleInit {
             LIKE_COUNT,
             async (job) => {
               try{
-                console.log('Start Processing job: ', job.name, job.data);
+                console.log('Start Processing job in backend: ', job.name, job.data);
                 const ms = Date.now();
                 const { postId, userId, count } = job.data;
                 await this.postService.updateLikeCount(postId, count)
@@ -106,10 +113,20 @@ export class JobProcessor implements OnModuleInit {
                   // Like
                   post.likedBy.push(user);
                   await this.postService.updatePostByPost(post);
+                  if(post.user.id !== userId) {
+                    this.grpcService.createNotification({
+                      postId: postId,
+                      creatorId: userId,
+                      creatorAvtUrl: user?.image || '',
+                      receiverId: post?.user.id,
+                      notifType: NotificationType.LIKE,
+                      message: generateNotifMessage(NotificationType.LIKE, user?.fullName || 'Someone')
+                    } as CreateNotificationRequest)
+                  }
                 }                
-                console.log('Processed job in: ', Date.now() - ms, ' ms');
+                console.log('Processed job in backend in: ', Date.now() - ms, ' ms');
               }catch (error) {
-                console.error('Error processing count like job: ', error)
+                console.error('Error processing count like job in backend: ', error)
                 throw error
               }
             },

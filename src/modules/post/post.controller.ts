@@ -112,4 +112,11 @@ export class PostController {
   ) {
     return this.postService.getComments({postId} as GetCommentDto)
   }
+
+  @Get(':id') 
+  async getPost(
+    @Param('id') id: string
+  ) {
+    return this.postService.findById(id);
+  }
 }
