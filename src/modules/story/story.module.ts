@@ -7,6 +7,7 @@ import { CreateStoryPipe } from '../../pipes/create-story.pipe';
 import { StoryEventsController } from './story-events.controller';
 // import { RabbitMQModule } from '../../config/rabbitMQ/rabbitMQ.module';
 import { JobModule } from '../../config/bullMQ/job.module';
+import { CloudinaryService } from '../../services/cloudinary.service';
 
 @Module({
   // imports: [PrismaModule, RabbitMQModule, JobModule],
@@ -16,6 +17,7 @@ import { JobModule } from '../../config/bullMQ/job.module';
     StoryService,
     // LoggingInterceptor,
     // CreateStoryPipe,
+    CloudinaryService,
   ],
   exports: [StoryModule, StoryService]
 })

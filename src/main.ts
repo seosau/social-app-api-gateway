@@ -14,7 +14,7 @@ async function bootstrap() {
   //   bufferLogs: true
   // });
 
-  app.useLogger(app.get(Logger))
+  // app.useLogger(app.get(Logger))
 
   // app.connectMicroservice<MicroserviceOptions>({
   //   transport: Transport.RMQ,

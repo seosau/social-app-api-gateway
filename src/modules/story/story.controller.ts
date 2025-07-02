@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UsePipes, UseGuards, UploadedFile } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UsePipes, UseGuards, UploadedFile, Req } from '@nestjs/common';
 import { StoryService } from './story.service';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
@@ -11,15 +11,19 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { ApiBody, ApiConsumes } from '@nestjs/swagger';
 import { ImageUploadDto } from './dto/image-upload.dto';
 import { diskStorage } from 'multer';
+import { CloudinaryService } from '../../services/cloudinary.service';
+import { AuthGuard } from '../../guards/auth.guard';
 
 @SkipThrottle()
 @Controller('story')
 export class StoryController {
   constructor(
     private readonly storyService: StoryService,
-    private readonly jobQueue: JobQueue
+    private readonly jobQueue: JobQueue,
+    private readonly cloudService: CloudinaryService,
   ) {}
 
+  @UseGuards(AuthGuard)
   @Post()
   @UseInterceptors(LoggingInterceptor, FileInterceptor('file', {
     storage: diskStorage({
@@ -27,10 +31,14 @@ export class StoryController {
       filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname),
     }),
   }))
-  // @UsePipes(CreateStoryPipe)
-  @ApiConsumes('multipart/form-data')
-  @ApiBody({ type: CreateStoryDto })
-  create(@Body() data: CreateStoryDto, @UploadedFile() file: Express.Multer.File) {
+  @UsePipes(CreateStoryPipe)
+  // @ApiConsumes('multipart/form-data')
+  // @ApiBody({ type: CreateStoryDto })
+  async create(
+    @Body() data: CreateStoryDto, 
+    @UploadedFile() file: Express.Multer.File,
+    @Req() req: Request,
+  ) { 
     const outputPath = `./upload/resized_${file.path}`
     this.jobQueue.addResizeJob({
       filePath: file.path,
@@ -38,30 +46,38 @@ export class StoryController {
       height: 500,
       outputPath
     });
-    return this.storyService.create(data);
+    const image = await this.cloudService.imageUpload(file.filename)
+    const userId = req['user'].sub;
+    return this.storyService.create({image, userId});
   }
 
   @Get()
   // @UseGuards(RateLimitGuard)
   @UseInterceptors(LoggingInterceptor)
-  findAll() {
+  async findAll() {
     return this.storyService.findAll();
   }
 
   @Get(':id')
   @SkipThrottle({default: true})
   @UseInterceptors(LoggingInterceptor)
-  findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string) {
     return this.storyService.findOne(id);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStoryDto: UpdateStoryDto) {
+  async update(@Param('id') id: string, @Body() updateStoryDto: UpdateStoryDto) {
     return this.storyService.update(id, updateStoryDto);
   }
 
+  @UseGuards(AuthGuard)
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.storyService.remove(id);
+  @UseInterceptors(LoggingInterceptor)
+  async remove(
+    @Param('id') id: string,
+    @Req() req: Request,
+  ) {
+    const deletorId = req['user'].sub;
+    return this.storyService.remove(id, deletorId);
   }
 }

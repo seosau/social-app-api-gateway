@@ -7,6 +7,10 @@ TS_PROTO_PLUGIN="./node_modules/.bin/protoc-gen-ts_proto"
 # Ensure output directory exists
 mkdir -p "$OUT_DIR"
 
+# install needed package
+# npm install ts-proto --save-dev
+chmod +x ./node_modules/.bin/protoc-gen-ts_proto
+
 # Loop through each .proto file
 find "$PROTO_DIR" -name "*.proto" | while read -r proto_file; do
   # Extract just the filename
@@ -18,7 +22,7 @@ find "$PROTO_DIR" -name "*.proto" | while read -r proto_file; do
     OPTIONS="outputServices=grpc-js,enumAsLiteral=false"
   else
     # Default for others
-    OPTIONS="nestJs=true,outputServices=grpc-js,enumAsLiteral=false"
+    OPTIONS="nestJs=true,outputServices=grpc-js"
   fi
 
   echo "Generating for $proto_file with options: $OPTIONS"
@@ -28,6 +32,7 @@ find "$PROTO_DIR" -name "*.proto" | while read -r proto_file; do
     --ts_proto_out=$OUT_DIR \
     --ts_proto_opt=$OPTIONS \
     --proto_path=$PROTO_DIR \
+    --experimental_allow_proto3_optional \
     "$proto_file"
 done
 

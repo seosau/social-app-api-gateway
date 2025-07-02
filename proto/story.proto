@@ -1,0 +1,53 @@
+syntax="proto3";
+
+package story;
+
+service StoryService {
+    rpc CreateStoryService (CreateStoryRequest) returns (CreateStoryResponse) {};
+    rpc GetAllStoryService (GetAllStoriesRequest) returns (GetAllStoriesResponse) {};
+    rpc GetStoryService (GetStoryRequest) returns (GetStoryResponse) {};
+    rpc DeleteStoryService (DeleteStoryRequest) returns (DeleteStoryResponse) {};
+}
+
+message Story {
+    string id = 1;
+    string image = 2;
+    string userId = 3;
+    string createdAt = 4;
+    string updatedAt = 5;
+    string deletedAt = 6;
+}
+
+message CreateStoryRequest {
+    string image = 1;
+    string userId = 2;
+}
+
+message CreateStoryResponse {
+    Story story = 1;
+}
+
+message GetAllStoriesRequest {
+
+}
+
+message GetAllStoriesResponse {
+    repeated Story stories = 1;
+}
+
+message GetStoryRequest {
+    string id = 1;
+}
+
+message GetStoryResponse {
+    Story story = 1;
+}
+
+message DeleteStoryRequest {
+    string id = 1;
+    string deletorId = 2;
+}
+
+message DeleteStoryResponse {
+    Story story = 1;
+}

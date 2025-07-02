@@ -44,6 +44,7 @@ model user {
   post               post[]
   post_liked_by_user post_liked_by_user[]
   story              story[]
+  // story_viewed_by_user story_viewed_by_user[]
 }
 
 model story {
@@ -54,7 +55,21 @@ model story {
     userId          String                  @db.Uuid
     user            user                    @relation(fields: [userId], references: [id])
     deletedAt       DateTime?               @db.Timestamp(6)
+    // story_viewed_by_user story_viewed_by_user[]
 }
+
+// model story_viewed_by_user {
+//   userId   String  @db.Uuid
+//   storyId  String  @db.Uuid
+//   viewedAt DateTime @default(now()) @db.Timestamp(6)
+
+//   user   user   @relation(fields: [userId], references: [id])
+//   story  story  @relation(fields: [storyId], references: [id])
+
+//   @@id([userId, storyId]) // mỗi user chỉ xem 1 lần
+//   @@index([storyId])
+// }
+
 
 model Message {
   id        String   @id @default(uuid())
