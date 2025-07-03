@@ -1,4 +1,4 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { LoginUserDto } from './dto/login-user.dto';
 import { addBaseURL } from '../../utils/addBaseURL';
@@ -41,5 +41,15 @@ export class AuthService {
       user: existedUserWithImg,
       access_token: await this.jwtService.signAsync(payload)
     }
+  }
+
+  async me(userId: string) {
+    const user = await this.userRepository.findById(userId);
+
+    if(!user) {
+      throw new NotFoundException('User not found')
+    }
+
+    return user;
   }
 }

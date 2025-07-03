@@ -1,9 +1,10 @@
-import { Controller, Post, Body, HttpCode, Res } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, Res, Req, Get, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { CreateUserDto } from '../user/dto/create-user.dto';
 import { ApiBadRequestResponse, ApiConflictResponse, ApiCreatedResponse, ApiOkResponse } from '@nestjs/swagger';
 import { LoginUserDto } from './dto/login-user.dto';
 import { Response } from 'express';
+import { AuthGuard } from '../../guards/auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -39,5 +40,32 @@ export class AuthController {
 
     return {user};
     // return await this.authService.login(loginUserDto);
+  }
+
+  @Post('logout')
+  @HttpCode(200)
+  @ApiOkResponse({ description: 'Logout successfully!' })
+  async logout(
+    @Res({ passthrough: true }) response: Response
+  ) {
+    response.clearCookie('access_token', {
+      httpOnly: true,
+      secure: false,
+      sameSite: 'lax',
+    })
+
+    return {message: 'Logged out successfully!'}
+  }
+
+  @UseGuards(AuthGuard)
+  @Get('/me')
+  @HttpCode(200)
+  async me(
+    @Req() req: Request
+  ) {
+    const userId = req['user'].sub
+    const user = await this.authService.me(userId);
+
+    return {user};
   }
 }
