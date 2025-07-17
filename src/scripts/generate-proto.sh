@@ -15,10 +15,10 @@ find "$PROTO_DIR" -name "*.proto" | while read -r proto_file; do
   # Choose options based on file name
   if [[ "$file_name" == "notification_enum.proto" ]]; then
     # No nestJs for enum-only proto
-    OPTIONS="outputServices=grpc-js,enumAsLiteral=false"
+    OPTIONS="outputServices=grpc-js,enumAsLiteral=false,useDate=date"
   else
     # Default for others
-    OPTIONS="nestJs=true,outputServices=grpc-js,enumAsLiteral=false"
+    OPTIONS="nestJs=true,outputServices=grpc-js,enumAsLiteral=false,useDate=date"
   fi
 
   echo "Generating for $proto_file with options: $OPTIONS"

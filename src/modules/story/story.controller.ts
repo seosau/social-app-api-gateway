@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UsePipes, UseGuards, UploadedFile, Req } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, UsePipes, UseGuards, UploadedFile, Req, Query } from '@nestjs/common';
 import { StoryService } from './story.service';
 import { CreateStoryDto } from './dto/create-story.dto';
 import { UpdateStoryDto } from './dto/update-story.dto';
@@ -54,8 +54,8 @@ export class StoryController {
   @Get()
   // @UseGuards(RateLimitGuard)
   @UseInterceptors(LoggingInterceptor)
-  async findAll() {
-    return this.storyService.findAll();
+  async findAll(@Query('firtId') firtId?: string) {
+    return this.storyService.findAll(firtId);
   }
 
   @Get(':id')

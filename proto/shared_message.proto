@@ -1,0 +1,28 @@
+syntax="proto3";
+
+package shared_message;
+
+message SUser {
+    string id = 1;
+    string fullName = 2;
+    string email = 3;
+    string password = 4;
+    string image = 5 ;
+    string createdAt = 8;
+    string updatedAt = 9;
+    string deletedAt = 10;
+}
+
+message SPost {
+  string id = 1;
+  string access = 2;
+  string content = 3;
+  string image = 4;
+
+  int32 like_count = 7;
+  int32 comment_count = 8;
+
+  string created_at = 9;
+  string updated_at = 10;
+  string deleted_at = 11;
+}

@@ -1,5 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
-import { DataSource, Repository } from "typeorm";
+import { DataSource, In, Repository } from "typeorm";
 import { User } from "./entities/user.entity";
 // import { Cache } from 'cache-manager';
 // import { CACHE_MANAGER } from '@nestjs/cache-manager';
@@ -23,6 +23,10 @@ export class UserRepository extends Repository<User> {
 
     async findById(id: string) {
         return this.findOne({where: {id: id}});
+    }
+
+    async findByIds(ids: string[]) {
+        return this.find({where: {id: In(ids)}});
     }
 
     async findByIdWithLikedPostsRelations(id: string) {

@@ -8,10 +8,11 @@ import { StoryEventsController } from './story-events.controller';
 // import { RabbitMQModule } from '../../config/rabbitMQ/rabbitMQ.module';
 import { JobModule } from '../../config/bullMQ/job.module';
 import { CloudinaryService } from '../../services/cloudinary.service';
+import { UserModule } from '../user/user.module';
 
 @Module({
   // imports: [PrismaModule, RabbitMQModule, JobModule],
-  imports: [PrismaModule, forwardRef(() => JobModule),],
+  imports: [PrismaModule, forwardRef(() => JobModule), UserModule],
   controllers: [StoryController, StoryEventsController],
   providers: [
     StoryService,

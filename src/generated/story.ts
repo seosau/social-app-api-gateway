@@ -9,6 +9,7 @@ import { BinaryReader, BinaryWriter } from "@bufbuild/protobuf/wire";
 import type { handleUnaryCall, UntypedServiceImplementation } from "@grpc/grpc-js";
 import { GrpcMethod, GrpcStreamMethod } from "@nestjs/microservices";
 import { Observable } from "rxjs";
+import { SUser } from "./shared_message";
 
 export const protobufPackage = "story";
 
@@ -21,6 +22,16 @@ export interface Story {
   deletedAt: string;
 }
 
+export interface StoryEnrich {
+  id: string;
+  image: string;
+  userId: string;
+  createdAt: string;
+  updatedAt: string;
+  deletedAt: string;
+  user: SUser | undefined;
+}
+
 export interface CreateStoryRequest {
   image: string;
   userId: string;
@@ -31,10 +42,15 @@ export interface CreateStoryResponse {
 }
 
 export interface GetAllStoriesRequest {
+  firtId?: string | undefined;
 }
 
 export interface GetAllStoriesResponse {
   stories: Story[];
+}
+
+export interface GetAllStoriesResponseEnrich {
+  stories: StoryEnrich[];
 }
 
 export interface GetStoryRequest {
@@ -43,6 +59,10 @@ export interface GetStoryRequest {
 
 export interface GetStoryResponse {
   story: Story | undefined;
+}
+
+export interface GetStoryResponseEnrich {
+  story: StoryEnrich | undefined;
 }
 
 export interface DeleteStoryRequest {
@@ -148,6 +168,109 @@ export const Story: MessageFns<Story> = {
   },
 };
 
+function createBaseStoryEnrich(): StoryEnrich {
+  return { id: "", image: "", userId: "", createdAt: "", updatedAt: "", deletedAt: "", user: undefined };
+}
+
+export const StoryEnrich: MessageFns<StoryEnrich> = {
+  encode(message: StoryEnrich, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.id !== "") {
+      writer.uint32(10).string(message.id);
+    }
+    if (message.image !== "") {
+      writer.uint32(18).string(message.image);
+    }
+    if (message.userId !== "") {
+      writer.uint32(26).string(message.userId);
+    }
+    if (message.createdAt !== "") {
+      writer.uint32(34).string(message.createdAt);
+    }
+    if (message.updatedAt !== "") {
+      writer.uint32(42).string(message.updatedAt);
+    }
+    if (message.deletedAt !== "") {
+      writer.uint32(50).string(message.deletedAt);
+    }
+    if (message.user !== undefined) {
+      SUser.encode(message.user, writer.uint32(58).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): StoryEnrich {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseStoryEnrich();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.id = reader.string();
+          continue;
+        }
+        case 2: {
+          if (tag !== 18) {
+            break;
+          }
+
+          message.image = reader.string();
+          continue;
+        }
+        case 3: {
+          if (tag !== 26) {
+            break;
+          }
+
+          message.userId = reader.string();
+          continue;
+        }
+        case 4: {
+          if (tag !== 34) {
+            break;
+          }
+
+          message.createdAt = reader.string();
+          continue;
+        }
+        case 5: {
+          if (tag !== 42) {
+            break;
+          }
+
+          message.updatedAt = reader.string();
+          continue;
+        }
+        case 6: {
+          if (tag !== 50) {
+            break;
+          }
+
+          message.deletedAt = reader.string();
+          continue;
+        }
+        case 7: {
+          if (tag !== 58) {
+            break;
+          }
+
+          message.user = SUser.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
 function createBaseCreateStoryRequest(): CreateStoryRequest {
   return { image: "", userId: "" };
 }
@@ -238,7 +361,10 @@ function createBaseGetAllStoriesRequest(): GetAllStoriesRequest {
 }
 
 export const GetAllStoriesRequest: MessageFns<GetAllStoriesRequest> = {
-  encode(_: GetAllStoriesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+  encode(message: GetAllStoriesRequest, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.firtId !== undefined) {
+      writer.uint32(10).string(message.firtId);
+    }
     return writer;
   },
 
@@ -249,6 +375,14 @@ export const GetAllStoriesRequest: MessageFns<GetAllStoriesRequest> = {
     while (reader.pos < end) {
       const tag = reader.uint32();
       switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.firtId = reader.string();
+          continue;
+        }
       }
       if ((tag & 7) === 4 || tag === 0) {
         break;
@@ -284,6 +418,43 @@ export const GetAllStoriesResponse: MessageFns<GetAllStoriesResponse> = {
           }
 
           message.stories.push(Story.decode(reader, reader.uint32()));
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseGetAllStoriesResponseEnrich(): GetAllStoriesResponseEnrich {
+  return { stories: [] };
+}
+
+export const GetAllStoriesResponseEnrich: MessageFns<GetAllStoriesResponseEnrich> = {
+  encode(message: GetAllStoriesResponseEnrich, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    for (const v of message.stories) {
+      StoryEnrich.encode(v!, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetAllStoriesResponseEnrich {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetAllStoriesResponseEnrich();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.stories.push(StoryEnrich.decode(reader, reader.uint32()));
           continue;
         }
       }
@@ -358,6 +529,43 @@ export const GetStoryResponse: MessageFns<GetStoryResponse> = {
           }
 
           message.story = Story.decode(reader, reader.uint32());
+          continue;
+        }
+      }
+      if ((tag & 7) === 4 || tag === 0) {
+        break;
+      }
+      reader.skip(tag & 7);
+    }
+    return message;
+  },
+};
+
+function createBaseGetStoryResponseEnrich(): GetStoryResponseEnrich {
+  return { story: undefined };
+}
+
+export const GetStoryResponseEnrich: MessageFns<GetStoryResponseEnrich> = {
+  encode(message: GetStoryResponseEnrich, writer: BinaryWriter = new BinaryWriter()): BinaryWriter {
+    if (message.story !== undefined) {
+      StoryEnrich.encode(message.story, writer.uint32(10).fork()).join();
+    }
+    return writer;
+  },
+
+  decode(input: BinaryReader | Uint8Array, length?: number): GetStoryResponseEnrich {
+    const reader = input instanceof BinaryReader ? input : new BinaryReader(input);
+    let end = length === undefined ? reader.len : reader.pos + length;
+    const message = createBaseGetStoryResponseEnrich();
+    while (reader.pos < end) {
+      const tag = reader.uint32();
+      switch (tag >>> 3) {
+        case 1: {
+          if (tag !== 10) {
+            break;
+          }
+
+          message.story = StoryEnrich.decode(reader, reader.uint32());
           continue;
         }
       }

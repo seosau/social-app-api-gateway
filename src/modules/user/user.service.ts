@@ -1,7 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { UserRepository } from './user.repository';
-import { addBaseURLInUser } from '../../utils/addBaseURLInUser';
+import { addBaseURLInUser, addBaseURLInUsers } from '../../utils/addBaseURLInUser';
 import { JobQueue } from '../../config/bullMQ/job.queue';
 import { UPLOAD_IMAGE_TYPE } from '../../config/bullMQ/job.constants';
 import * as bcrypt from 'bcrypt';
@@ -24,6 +24,16 @@ export class UserService {
     }
 
     return addBaseURLInUser(user);
+  }
+
+  async findByIds(ids: string[]) {
+    const users = await this.userRepository.findByIds(ids);
+
+    if (!users || users.length === 0) {
+      throw new NotFoundException('User not found!');
+    }
+
+    return addBaseURLInUsers(users);
   }
 
   async update(id: string, updateUserDto: UpdateUserDto) {
