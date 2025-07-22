@@ -4,6 +4,7 @@ import { ClientsModule, GrpcOptions, Transport } from '@nestjs/microservices'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { join } from 'path'
 import { StoryGrpcService } from './story.grpc.service'
+import { ChatGrpcService } from './chat.grpc.service'
 
 @Global()
 @Module({
@@ -72,15 +73,38 @@ import { StoryGrpcService } from './story.grpc.service'
         },
         inject: [ConfigService],
       },
+      {
+        name: 'CHAT_CLIENT_GRPC',
+        imports: [ConfigModule],
+        useFactory: async (configService: ConfigService): Promise<GrpcOptions> => {
+        return {
+            transport: Transport.GRPC,
+            options: {
+            loader: {
+                longs: String,
+                enums: String,
+                json: true,
+                defaults: true,
+            },
+            package: configService.get<string>('CHAT_GRPC_PACKAGE_NAME') || '',
+            protoPath: [join(__dirname, '../../../proto/chat.proto')],
+            url: configService.get<string>('CHAT_GRPC_URL') || '',
+            },
+        };
+        },
+        inject: [ConfigService],
+      },
     ]),
   ],
   providers: [
     GrpcService, 
-    StoryGrpcService
+    StoryGrpcService,
+    ChatGrpcService,
   ],
   exports: [
     GrpcService, 
-    StoryGrpcService
+    StoryGrpcService,
+    ChatGrpcService,
   ],
 })
 export class GrpcModule {}

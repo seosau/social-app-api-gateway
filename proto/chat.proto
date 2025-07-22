@@ -1,0 +1,92 @@
+syntax = "proto3";
+
+package chat;
+
+import "chat_enum.proto";
+import "shared_message.proto";
+
+service ChatService {
+    rpc GetListConversation (GetListConversationRequest) returns (GetListConversationResponse) {};
+    rpc GetConversation (GetConversationRequest) returns (GetConversationResponse) {};
+    rpc CreateConversation (CreateConversationRequest) returns (CreateConversationResponse) {};
+    rpc SendMessage (SendMessageRequest) returns (SendMessageResponse) {};
+}
+
+message Conversation {
+    string id = 1;
+    repeated string memberIds = 2;
+    chat_enum.ConversationType type = 3;
+    string updatedAt = 8;
+    string createdAt = 9;
+    string deletedAt = 10;
+}
+
+message ConversationEnrich {
+    string id = 1;
+    repeated string memberIds = 2;
+    chat_enum.ConversationType type = 3;
+    string updatedAt = 8;
+    string createdAt = 9;
+    string deletedAt = 10;
+    repeated shared_message.SUser members= 11;
+}
+
+message Message {
+    string id = 1;
+    string senderId = 2;
+    string conversationId = 3;
+    string content = 4;
+    string updatedAt = 8;
+    string createdAt = 9;
+    string deletedAt = 10;
+}
+
+message CreateConversationRequest {
+    repeated string memberIds = 2;
+    chat_enum.ConversationType type = 3;
+}
+
+message CreateConversationResponse {
+    string id = 1;
+    repeated string memberIds = 2;
+    chat_enum.ConversationType type = 3;
+    string updatedAt = 8;
+    string createdAt = 9;
+    string deletedAt = 10;
+}
+
+message GetListConversationRequest {
+    string userId = 1;
+}
+
+message GetListConversationResponse {
+    repeated GetConversationResponse conversations = 1;
+}
+
+message GetListConversationResponseEnrich {
+    repeated GetConversationResponseEnrich conversations = 1;
+}
+
+message GetConversationRequest {
+    string conversationId = 1;
+}
+
+message GetConversationResponse {
+    Conversation conversation = 1;
+    repeated Message messageList = 2;
+}
+
+message GetConversationResponseEnrich {
+    ConversationEnrich conversation = 1;
+    repeated Message messageList = 2;
+}
+
+message SendMessageRequest {
+    string senderId = 2;
+    string conversationId = 3;
+    string content = 4;
+}
+
+message SendMessageResponse {
+    Message message = 1;
+}

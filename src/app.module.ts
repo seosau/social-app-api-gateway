@@ -28,6 +28,7 @@ import * as fs from 'fs';
 import { GrpcModule } from './config/gRPC/grpc.module';
 // import { ClientsModule, Transport } from '@nestjs/microservices';
 import { NotificationModule } from './modules/notification/notification.module';
+import { ChatModule } from './modules/chat/chat.module';
 
  
 @Module({
@@ -178,7 +179,8 @@ import { NotificationModule } from './modules/notification/notification.module';
     StoryModule,
     // RabbitMQModule,
     MonitoringModule,
-    NotificationModule
+    NotificationModule,
+    ChatModule
   ],
   controllers: [],
   providers: [

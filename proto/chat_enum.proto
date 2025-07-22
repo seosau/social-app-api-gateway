@@ -1,0 +1,10 @@
+
+syntax = "proto3";
+
+package chat_enum;
+
+enum ConversationType {
+    CONVERSATION_UNSPECIFIED = 0;
+    PERSON_TO_PERSON = 1;
+    GROUP_CONVERSATION = 2;
+}
