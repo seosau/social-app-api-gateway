@@ -61,6 +61,10 @@ export class StoryService {
     // }
     // const res = await this.prisma.story.findMany()
     const res = await this.storyGrpcService.getAllStory({firtId})
+    if(!res.stories || res.stories.length === 0) {
+      return []
+    }
+
     const listUserId = [...new Set(res.stories.map((story) => story.userId))];
     const userList = await this.userService.findByIds(listUserId)
     // this.client.emit('story.getted', res)

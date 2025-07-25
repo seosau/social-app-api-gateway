@@ -124,7 +124,7 @@ import { ChatModule } from './modules/chat/chat.module';
           port: config.get<number>('REDIS_PORT'),
           password: config.get<string>('REDIS_PASSWORD'),
           username: config.get<string>('REDIS_USERNAME'),
-          tls: {},
+          // tls: {},
           maxRetriesPerRequest: 1000000,
         }
         return {

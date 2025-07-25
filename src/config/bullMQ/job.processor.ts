@@ -12,9 +12,10 @@ import { CreateNotificationRequest } from "../../generated/notification";
 import { NotificationType } from "../../generated/notification_enum";
 import { generateNotifMessage } from "../../utils";
 import { JobQueue } from "./job.queue";
+import { APP_CONFIG } from "../app.config";
 
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisUrl = APP_CONFIG.REDIS_URL || 'redis://localhost:6379';
 const url = new URL(redisUrl);
 @Injectable()
 export class JobProcessor implements OnModuleInit {
@@ -34,11 +35,11 @@ export class JobProcessor implements OnModuleInit {
 
     onModuleInit() {
         const connectionData = { 
-            host: process.env.REDIS_HOST,
-            port: Number(process.env.REDIS_PORT),
-            password: process.env.REDIS_PASSWORD,
-            username: process.env.REDIS_USERNAME,
-            tls: {},
+            host: APP_CONFIG.REDIS_HOST,
+            port: APP_CONFIG.REDIS_PORT,
+            password: APP_CONFIG.REDIS_PASSWORD,
+            username: APP_CONFIG.REDIS_USERNAME,
+            // tls: {},
             maxRetriesPerRequest: null,
          }
         this.resizeWorker = new Worker(

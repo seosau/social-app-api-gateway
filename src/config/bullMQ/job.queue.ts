@@ -2,8 +2,9 @@ import { Injectable } from "@nestjs/common";
 import { Queue } from "bullmq";
 import { COMMENT_COUNT, COMMENT_COUNT_TYPE_ARGUMENT, NOTIF_QUEUE_NAME, RESIZE_IMAGE, TOGGLE_LIKE, UPDATE_NOTIF_BY_USER, UPLOAD_IMAGE } from "./job.constants";
 import { User } from "src/modules/user/entities/user.entity";
+import { APP_CONFIG } from "../app.config";
 
-const redisUrl = process.env.REDIS_URL || 'redis://localhost:6379';
+const redisUrl = APP_CONFIG.REDIS_URL || 'redis://localhost:6379';
 const url = new URL(redisUrl);
 
 @Injectable()
@@ -16,11 +17,11 @@ export class JobQueue {
 
     constructor() {
         const connectionData = {
-            host: process.env.REDIS_HOST,
-            port: Number(process.env.REDIS_PORT),
-            password: process.env.REDIS_PASSWORD,
-            username: process.env.REDIS_USERNAME,
-            tls: {},
+            host: APP_CONFIG.REDIS_HOST,
+            port: Number(APP_CONFIG.REDIS_PORT),
+            password: APP_CONFIG.REDIS_PASSWORD,
+            username: APP_CONFIG.REDIS_USERNAME,
+            // tls: {},
             maxRetriesPerRequest: null,
         }
         this.resizeQueue = new Queue(RESIZE_IMAGE, {

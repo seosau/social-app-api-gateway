@@ -1,6 +1,6 @@
 import { Global, Module } from '@nestjs/common'
 import { GrpcService } from './grpc.service'
-import { ClientsModule, GrpcOptions, Transport } from '@nestjs/microservices'
+import { ClientsModule, ClientsProviderAsyncOptions, GrpcOptions, Transport } from '@nestjs/microservices'
 import { ConfigModule, ConfigService } from '@nestjs/config'
 import { join } from 'path'
 import { StoryGrpcService } from './story.grpc.service'
@@ -30,7 +30,7 @@ import { ChatGrpcService } from './chat.grpc.service'
         };
         },
         inject: [ConfigService],
-      },
+      } as ClientsProviderAsyncOptions,
       {
         name: 'NOTIFICATION_CLIENT_GRPC',
         imports: [ConfigModule],
