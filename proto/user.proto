@@ -4,6 +4,11 @@ package user;
 
 import "shared_message.proto";
 
+service UserService {
+    rpc getOneUser(GetOneUserRequest) returns (GetOneUserResponse) {};
+    rpc getManyUser(GetManyUserRequest) returns (GetManyUserResponse) {};
+}
+
 message User {
     string id = 1;
     string fullName = 2;
@@ -15,4 +20,20 @@ message User {
     string createdAt = 8;
     string updatedAt = 9;
     string deletedAt = 10;
+}
+
+message GetOneUserRequest {
+    string id = 1;
+}
+
+message GetOneUserResponse {
+    User user = 1;
+}
+
+message GetManyUserRequest {
+    repeated string ids = 1;
+}
+
+message GetManyUserResponse {
+    repeated User users = 1;
 }
